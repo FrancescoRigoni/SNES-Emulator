@@ -1,0 +1,101 @@
+Memory mapping for SNES LoRom:
+
+LOW:  $0000-$7FFF
+HIGH: $8000-$FFFF
+
+Source: https://en.wikibooks.org/wiki/Super_NES_Programming/SNES_memory_map
+
+Mapping #  SNES  ->   ROM
+
+Applies to all mappings:
+	Source bank even -> Destination bank LOW
+	Source bank odd -> Destination bank HIGH
+	
+--------------------------------------------------
+
+Mapping #0
+
+$00 HIGH -> $00 LOW
+$01 HIGH -> $00 HIGH
+$02 HIGH -> $01 LOW
+$03 HIGH -> $01 HIGH
+...
+$3F HIGH -> $1F HIGH
+
+Mirror:
+	$80 HIGH -> $00 LOW
+	$81 HIGH -> $00 HIGH
+	$82 HIGH -> $01 LOW
+	$83 HIGH -> $01 HIGH
+	...
+	$BF HIGH -> $1F HIGH
+
+	Source Bank - $80
+	Use Mapping #0
+
+--------------------------------------------------
+
+Mapping #1
+
+$40 LOW -> $20 LOW
+$41 LOW -> $20 HIGH
+$42 LOW -> $21 LOW
+$43 LOW -> $21 HIGH
+...
+$6F LOW -> $37 HIGH
+
+--------------------------------------------------
+
+Mapping #2
+
+$40 HIGH -> $20 LOW
+$41 HIGH -> $20 HIGH
+$42 HIGH -> $21 LOW
+$43 HIGH -> $21 HIGH
+...
+$6F HIGH -> $37 HIGH
+
+Mirror:
+	$C0 HIGH -> $20 LOW
+	$C1 HIGH -> $20 HIGH
+	$C2 HIGH -> $21 LOW
+	$C3 HIGH -> $21 HIGH
+	...
+	$EF HIGH -> $37 HIGH
+
+	Source Bank - $80
+	Use Mapping #2
+
+--------------------------------------------------
+
+Mapping #3
+
+$70 HIGH -> $38 LOW
+$71 HIGH -> $38 HIGH
+$72 HIGH -> $39 LOW
+$73 HIGH -> $39 HIGH
+...
+$7D HIGH -> $3E HIGH
+
+Mirror:
+	$F0 HIGH -> $38 LOW
+	$F1 HIGH -> $38 HIGH
+	$F2 HIGH -> $39 LOW
+	$F3 HIGH -> $39 HIGH
+	...
+	$FD HIGH -> $3E HIGH
+
+	Source Bank - $80
+	Use Mapping #3
+	
+--------------------------------------------------
+
+Mapping #7
+
+$FE HIGH -> $3F: LOW
+$FF HIGH -> $3F: HIGH
+
+--------------------------------------------------
+
+
+

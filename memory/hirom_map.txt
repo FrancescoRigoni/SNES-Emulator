@@ -1,0 +1,79 @@
+Memory mapping for SNES LoRom:
+
+LOW:  $0000-$7FFF
+HIGH: $8000-$FFFF
+
+Source: https://en.wikibooks.org/wiki/Super_NES_Programming/SNES_memory_map
+
+Mapping #  SNES  ->   ROM
+	
+--------------------------------------------------
+
+Mapping #0
+
+$00 HIGH -> $00 HIGH
+$01 HIGH -> $01 HIGH
+$02 HIGH -> $02 HIGH
+$03 HIGH -> $03 HIGH
+...
+$1F HIGH -> $1F HIGH
+
+Mirror:
+	$80 HIGH -> $00 HIGH
+	...
+	$9F HIGH -> $1F HIGH
+
+--------------------------------------------------
+
+Mapping #1
+
+$20 HIGH -> $20 HIGH
+$21 HIGH -> $21 HIGH
+$22 HIGH -> $22 HIGH
+$23 HIGH -> $23 HIGH
+...
+$3F HIGH -> $3F HIGH
+
+Mirror:
+	$A0 HIGH -> $20 HIGH
+	...
+	$BF HIGH -> $3F HIGH
+
+--------------------------------------------------
+
+Mapping #2
+
+$40 ALL -> $00 ALL
+$41 ALL -> $01 ALL
+$42 ALL -> $02 ALL
+$43 ALL -> $03 ALL
+...
+$7D ALL -> $3D ALL
+
+Mirror:
+	$C0 ALL -> $00 ALL
+	...
+	$FD ALL -> $3D ALL
+
+--------------------------------------------------
+
+Mapping #3
+
+$70 HIGH -> $38 LOW
+$71 HIGH -> $38 HIGH
+$72 HIGH -> $39 LOW
+$73 HIGH -> $39 HIGH
+...
+$7D HIGH -> $3E HIGH
+	
+--------------------------------------------------
+
+Mapping #4
+
+$FE ALL -> $3E: ALL
+$FF ALL -> $3F: ALL
+
+--------------------------------------------------
+
+
+
