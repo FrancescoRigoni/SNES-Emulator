@@ -50,15 +50,15 @@ class OpCode {
         AddressingMode mAddressingMode;
     public:
         OpCode(uint8_t, const char * const, const AddressingMode &);
-        
+
         uint8_t getCode() {
             return mCode;
         }
-        
+
         const char *getName() {
             return mName;
         }
-        
+
         const AddressingMode getAddressingMode() {
             return mAddressingMode;
         }
@@ -67,21 +67,21 @@ class OpCode {
 class Cpu {
     public:
         Cpu(RomReader &, MemoryMapper &);
-        
+
         void setBreakPoint(uint8_t bank, uint16_t offset);
-        
+
         // Temporary
         bool executeNext();
-        
+
         void logCpuStatus();
-        
+
         void debug_setZeroFlag();
-        
+
     private:
         const RomReader::EmulationModeInterrupts * const mEmulationInterrupts;
         const RomReader::NativeModeInterrupts * const mNativeInterrupts;
         MemoryMapper &mMemoryMapper;
-    
+
         // Accumulator register
         uint16_t mA;
         // X index register
@@ -98,34 +98,34 @@ class Cpu {
         //uint16_t mPC;
         // Direct page register
         uint16_t mD;
-        
+
         Stack mStack;
-        
+
         // Address of the current OpCode
         Address mProgramAddress;
-        
+
         // Total number of cycles
         uint64_t mTotalCyclesCounter;
-        
+
         bool mBreakpointEnabled;
         uint8_t mBreakBank;
         uint16_t mBreakOffset;
-        
+
         void initCpu();
         bool accumulatorIs8BitWide();
         bool accumulatorIs16BitWide();
         bool indexIs8BitWide();
         bool indexIs16BitWide();
-        
+
         uint16_t indexWithXRegister();
         uint16_t indexWithYRegister();
-      
+
         int executeBranchShortOnCondition(bool, OpCode &);
         int executeBranchLongOnCondition(bool, OpCode &);
-        
+
         Address getAddressOfOpCodeData(OpCode &opCode);
         void trace(OpCode &opCode);
-        
+
         void setProgramAddress(uint8_t, uint16_t);
         void setProgramAddress(Address &);
         void addToCycles(int);
