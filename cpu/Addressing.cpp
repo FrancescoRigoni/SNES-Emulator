@@ -3,12 +3,60 @@
 
 #define LOG_TAG "Addressing"
 
+bool Cpu::opCodeAddressingCrossesPageBoundary(OpCode &opCode) {
+    Address onePlusOpCodeAddress;
+    onePlusOpCodeAddress.bank = mProgramAddress.bank;
+    onePlusOpCodeAddress.offset = mProgramAddress.offset + 1;
+
+    switch(opCode.getAddressingMode()) {
+        case AbsoluteIndexedWithX:
+        {
+            Address initialAddress;
+            initialAddress.bank = mDB;
+            initialAddress.offset = mMemoryMapper.readTwoBytes(onePlusOpCodeAddress);
+            // TODO: figure out when to wrap around and when not to, it should not matter in this case
+            // but it matters when fetching data
+            Address finalAddress = MemoryMapper::sumOffsetToAddressNoWrapAround(initialAddress, indexWithXRegister());
+            return mMemoryMapper.offsetsAreOnDifferentPages(initialAddress.offset, finalAddress.offset);
+        }
+        case AbsoluteIndexedWithY:
+        {
+            Address initialAddress;
+            initialAddress.bank = mDB;
+            initialAddress.offset = mMemoryMapper.readTwoBytes(onePlusOpCodeAddress);
+            // TODO: figure out when to wrap around and when not to, it should not matter in this case
+            // but it matters when fetching data
+            Address finalAddress = MemoryMapper::sumOffsetToAddressNoWrapAround(initialAddress, indexWithYRegister());
+            return mMemoryMapper.offsetsAreOnDifferentPages(initialAddress.offset, finalAddress.offset);
+        }
+        case DirectPageIndirectIndexedWithY:
+        {
+            uint16_t firstStageOffset = mD + mMemoryMapper.readByte(onePlusOpCodeAddress);
+            uint16_t secondStageOffset = mMemoryMapper.readTwoBytes(0x00, firstStageOffset);
+            Address thirdStageAddress;
+            thirdStageAddress.bank = mDB;
+            thirdStageAddress.offset = secondStageOffset;
+            // TODO: figure out when to wrap around and when not to, it should not matter in this case
+            // but it matters when fetching data
+            Address finalAddress = MemoryMapper::sumOffsetToAddressNoWrapAround(thirdStageAddress, indexWithYRegister());
+            return mMemoryMapper.offsetsAreOnDifferentPages(thirdStageAddress.offset, finalAddress.offset);
+        }
+        default:
+        {
+            Log::err(LOG_TAG).str("!!! Unsupported opCodeAddressingCrossesPageBoundary for opCode: ").hex(opCode.getCode(), 2).show();
+        }
+
+    }
+
+    return false;
+}
+
 Address Cpu::getAddressOfOpCodeData(OpCode &opCode) {
     Address onePlusOpCodeAddress;
     onePlusOpCodeAddress.bank = mProgramAddress.bank;
     onePlusOpCodeAddress.offset = mProgramAddress.offset + 1;
     Address dataAddress;
-    
+
     switch(opCode.getAddressingMode()) {
         case Interrupt:
         case Accumulator:
@@ -162,6 +210,6 @@ Address Cpu::getAddressOfOpCodeData(OpCode &opCode) {
         }
             break;
     }
-    
+
     return dataAddress;
 }

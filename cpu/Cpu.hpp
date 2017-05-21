@@ -120,10 +120,9 @@ class Cpu {
         uint16_t indexWithXRegister();
         uint16_t indexWithYRegister();
 
-        int executeBranchShortOnCondition(bool, OpCode &);
-        int executeBranchLongOnCondition(bool, OpCode &);
-
         Address getAddressOfOpCodeData(OpCode &opCode);
+        bool opCodeAddressingCrossesPageBoundary(OpCode &opCode);
+
         void trace(OpCode &opCode);
 
         void setProgramAddress(uint8_t, uint16_t);
@@ -131,6 +130,14 @@ class Cpu {
         void addToCycles(int);
         void addToProgramAddress(int);
         void addToProgramAddressAndCycles(int, int);
+
+        // OpCode specific
+        int executeBranchShortOnCondition(bool, OpCode &);
+        int executeBranchLongOnCondition(bool, OpCode &);
+
+        int executeORA(OpCode &);
+        int executeORA8Bit(OpCode &);
+        int executeORA16Bit(OpCode &);
 };
 
 #endif

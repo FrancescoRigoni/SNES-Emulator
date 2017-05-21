@@ -3,12 +3,10 @@
 
 #include <cmath>
 
-#define LOG_TAG "Cpu"
-
 /**
  * This file contains a bunch of methods used by branch OpCodes.
  * Actual execution of the opcodes is performed inside Executor.cpp
- * These methods are called from there. 
+ * These methods are called from there.
  */
 int Cpu::executeBranchShortOnCondition(bool condition, OpCode &opCode) {
     uint8_t opCycles = 2;

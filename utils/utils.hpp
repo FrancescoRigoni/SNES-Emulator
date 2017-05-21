@@ -13,6 +13,7 @@ namespace Binary {
     bool is16bitValueNegative(uint16_t value);
     bool is8bitValueZero(uint8_t value);
     bool is16bitValueZero(uint16_t value);
+    void setLower8BitsOf16BitsValue(uint16_t *destination, uint8_t value);
 }
 
 #endif

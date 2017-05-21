@@ -12,7 +12,7 @@ bool Cpu::executeNext() {
     // Fetch the instruction
     const uint8_t instruction = mMemoryMapper.readByte(mProgramAddress);
     OpCode opCode = OP_CODE[instruction];
-    // Fetc address of OpCode data
+    // Fetch address of OpCode data
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
     // Log the OpCode
     trace(opCode);
@@ -37,16 +37,35 @@ bool Cpu::executeNext() {
             mCpuStatus.setInterruptDisableFlag();
             break;
         }
+        case(0x01):  // ORA DP Indexed Indirect, X
+        {
+            executeORA(opCode);
+            break;
+        }
+        case (0x03): // ORA Stack Relative
+        {
+            executeORA(opCode);
+            break;
+        }
+        case(0x05):  // ORA Direct Page
+        {
+            executeORA(opCode);
+            break;
+        }
         case(0x08):  // PHP
         {
             mStack.push8Bit(mCpuStatus.getRegisterValue());
             addToProgramAddressAndCycles(1,3);
             break;
         }
-        case(0x10):  // BPL
+        case(0x07):  // ORA Direct page indirect long
         {
-            int cycles = executeBranchShortOnCondition(!mCpuStatus.signFlag(), opCode);
-            addToCycles(cycles);
+            executeORA(opCode);
+            break;
+        }
+        case(0x09):  // ORA Immediate
+        {
+            executeORA(opCode);
             break;
         }
         case(0x0B):  // PHD
@@ -55,10 +74,56 @@ bool Cpu::executeNext() {
             addToProgramAddressAndCycles(1,4);
             break;
         }
+        case(0x0D):  // ORA absolute
+        {
+            executeORA(opCode);
+            break;
+        }
+        case(0x0F):  // ORA absolute long
+        {
+            executeORA(opCode);
+            break;
+        }
+        case(0x10):  // BPL
+        {
+            int cycles = executeBranchShortOnCondition(!mCpuStatus.signFlag(), opCode);
+            addToCycles(cycles);
+            break;
+        }
+        case(0x11):  // ORA DP Indirect Indexed, Y
+        {
+            executeORA(opCode);
+            break;
+        }
+        case(0x12):  // ORA Direct page indirect
+        {
+            executeORA(opCode);
+            break;
+        }
+        case(0x13):  // SR Indirect Indexed, Y
+        {
+            executeORA(opCode);
+            break;
+        }
+        case(0x15):  // ORA DP Indexed, X
+        {
+            executeORA(opCode);
+            break;
+        }
+        case(0x17):  // ORA DP Indirect Long Indexed, Y
+        {
+            executeORA(opCode);
+            break;
+        }
         case(0x18):  // CLC
         {
             mCpuStatus.clearCarryFlag();
             addToProgramAddressAndCycles(1,2);
+            break;
+        }
+        case(0x19):  // ORA Absolute Indexed, Y
+        {
+            executeORA(opCode);
             break;
         }
         case(0x1B):  // TCS
@@ -73,6 +138,16 @@ bool Cpu::executeNext() {
             }
             mStack = Stack(&mMemoryMapper, newStackPointer);
             addToProgramAddressAndCycles(1,2);
+            break;
+        }
+        case(0x1D):  // ORA Absolute Indexed, X
+        {
+            executeORA(opCode);
+            break;
+        }
+        case(0x1F):  // ORA Absolute Long Indexed, X
+        {
+            executeORA(opCode);
             break;
         }
         case(0x20):  // JSR addr
