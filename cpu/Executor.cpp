@@ -5,19 +5,28 @@
 
 #define LOG_TAG "Cpu"
 
-// OpCode table. See OpCode.cpp
-extern OpCode OP_CODE[];
-
 bool Cpu::executeNext() {
     // Fetch the instruction
     const uint8_t instruction = mMemoryMapper.readByte(mProgramAddress);
-    OpCode opCode = OP_CODE[instruction];
-    // Fetch address of OpCode data
-    Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
+    OpCode opCode = OP_CODE_TABLE[instruction];
     // Log the OpCode
     trace(opCode);
+    // TODO: make decent debugger
+    if (mBreakpointEnabled) {
+        if (mProgramAddress.bank == mBreakBank && mProgramAddress.offset == mBreakOffset) return false;
+    }
+    // Execute it
+    if (opCode.execute(*this)) {
+        return true;
+    } else {
+        return useDeprecatedExecutor(opCode);
+    }
+}
 
-    switch (instruction) {
+bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
+    // Fetch address of OpCode data
+    Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
+    switch (opCode.getCode()) {
         case(0x00):  // BRK
         {
             if (mCpuStatus.emulationFlag()) {
@@ -52,12 +61,6 @@ bool Cpu::executeNext() {
             executeORA(opCode);
             break;
         }
-        case(0x08):  // PHP
-        {
-            mStack.push8Bit(mCpuStatus.getRegisterValue());
-            addToProgramAddressAndCycles(1,3);
-            break;
-        }
         case(0x07):  // ORA Direct page indirect long
         {
             executeORA(opCode);
@@ -66,12 +69,6 @@ bool Cpu::executeNext() {
         case(0x09):  // ORA Immediate
         {
             executeORA(opCode);
-            break;
-        }
-        case(0x0B):  // PHD
-        {
-            mStack.push16Bit(mD);
-            addToProgramAddressAndCycles(1,4);
             break;
         }
         case(0x0D):  // ORA absolute
@@ -167,12 +164,6 @@ bool Cpu::executeNext() {
             addToCycles(8);
             break;
         }
-        case(0x28):  // PLP
-        {
-            mCpuStatus.setRegisterValue(mStack.pull8Bit());
-            addToProgramAddressAndCycles(1,4);
-            break;
-        }
         case(0x29):  // AND #const
         {
             if (accumulatorIs8BitWide()) {
@@ -186,28 +177,12 @@ bool Cpu::executeNext() {
             }
             break;
         }
-        case(0x2B):  // PLD
-        {
-            mD = mStack.pull16Bit();
-            mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mD);
-            addToProgramAddressAndCycles(1,5);
-            break;
-        }
         case(0x30):  // BMI
         {
             addToCycles(executeBranchShortOnCondition(mCpuStatus.signFlag(), opCode));
             break;
         }
-        case(0x48):  // PHA
-        {
-            if (accumulatorIs8BitWide()) {
-                mStack.push8Bit(Binary::lower8BitsOf(mA));
-            } else {
-                mStack.push16Bit(mA);
-            }
-            addToProgramAddressAndCycles(1,3);
-            break;
-        }
+
         case(0x4C):  // JMP (absolute program)
         {
             setProgramAddress(opCodeDataAddress);
@@ -240,13 +215,6 @@ bool Cpu::executeNext() {
             addToCycles(6);
             break;
         }
-        case(0x62):  // PER
-        {
-            int opCodeSize = 3;
-            mStack.push16Bit(mProgramAddress.offset + opCodeSize + mMemoryMapper.readTwoBytes(opCodeDataAddress));
-            addToProgramAddressAndCycles(opCodeSize,6);
-            break;
-        }
         case(0x64):  // STZ direct page
         {
             int opCycles = Binary::lower8BitsOf(mD) != 0 ? 1 : 0;
@@ -258,19 +226,6 @@ bool Cpu::executeNext() {
                 opCycles += 4;
             }
             addToProgramAddressAndCycles(2, opCycles);
-            break;
-        }
-        case(0x68):  // PLA
-        {
-            if (accumulatorIs8BitWide()) {
-                mA = mStack.pull8Bit();
-                mCpuStatus.updateSignAndZeroFlagFrom8BitValue(mA);
-                addToProgramAddressAndCycles(1,4);
-            } else {
-                mA = mStack.pull16Bit();
-                mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mA);
-                addToProgramAddressAndCycles(1,5);
-            }
             break;
         }
         case(0x6B):  // RTL
@@ -330,12 +285,6 @@ bool Cpu::executeNext() {
             addToProgramAddressAndCycles(1,2);
             break;
         }
-        case(0x8B):  // PHB
-        {
-            mStack.push8Bit(mDB);
-            addToProgramAddressAndCycles(1,3);
-            break;
-        }
         case(0x8D):  // STA addr
         {
             if (accumulatorIs8BitWide()) {
@@ -393,13 +342,6 @@ bool Cpu::executeNext() {
                 mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mA);
                 addToProgramAddressAndCycles(3,2);
             }
-            break;
-        }
-        case(0xAB):  // PLB
-        {
-            mDB = mStack.pull8Bit();
-            mCpuStatus.updateSignAndZeroFlagFrom8BitValue(mDB);
-            addToProgramAddressAndCycles(1,4);
             break;
         }
         case(0xAF):  // LDA Absolute Long
@@ -1262,11 +1204,6 @@ bool Cpu::executeNext() {
             Log::trc(LOG_TAG).str("Unimplemented!").show();
             return false;
             break;
-    }
-
-    // TODO: make decent debugger
-    if (mBreakpointEnabled) {
-        if (mProgramAddress.bank == mBreakBank && mProgramAddress.offset == mBreakOffset) return false;
     }
 
     return true;

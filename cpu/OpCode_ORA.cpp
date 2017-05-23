@@ -7,7 +7,7 @@
  * Actual execution of the opcodes is performed inside Executor.cpp
  * These methods are called from there.
  */
-int Cpu::executeORA8Bit(OpCode &opCode) {
+void Cpu::executeORA8Bit(OpCode &opCode) {
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
     uint8_t operand = mMemoryMapper.readByte(opCodeDataAddress);
     uint8_t result = Binary::lower8BitsOf(mA) | operand;
@@ -15,7 +15,7 @@ int Cpu::executeORA8Bit(OpCode &opCode) {
     Binary::setLower8BitsOf16BitsValue(&mA, result);
 }
 
-int Cpu::executeORA16Bit(OpCode &opCode) {
+void Cpu::executeORA16Bit(OpCode &opCode) {
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
     uint16_t operand = mMemoryMapper.readTwoBytes(opCodeDataAddress);
     uint16_t result = mA | operand;
@@ -23,7 +23,7 @@ int Cpu::executeORA16Bit(OpCode &opCode) {
     mA = result;
 }
 
-int Cpu::executeORA(OpCode &opCode) {
+void Cpu::executeORA(OpCode &opCode) {
     switch (opCode.getCode()) {
         case (0x01):                // ORA DP Indexed Indirect, X
         {

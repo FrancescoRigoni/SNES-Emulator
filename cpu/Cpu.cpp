@@ -13,7 +13,7 @@ Cpu::Cpu(RomReader &romReader, MemoryMapper &memoryMapper) :
 
     initCpu();
     logCpuStatus();
-    
+
     Log::dbg(LOG_TAG).str("Emulation mode RST vector at").sp().hex(mEmulationInterrupts->reset, 4).show();
     Log::dbg(LOG_TAG).str("Native mode BRK vector at").sp().hex(mNativeInterrupts->brk, 4).show();
     Log::dbg(LOG_TAG).str("Native mode VSYNC vector at").sp().hex(mNativeInterrupts->nonMaskableInterrupt, 4).show();
@@ -26,15 +26,15 @@ void Cpu::debug_setZeroFlag() {
 
 void Cpu::initCpu() {
     mBreakpointEnabled = false;
-    
+
     mA = 0;
     mX = 0;
     mY = 0;
     mDB = 0;
     mD = 0;
-    
+
     mTotalCyclesCounter = 0;
-    
+
     // Start in emulation mode
     mCpuStatus.setEmulationFlag();
     // Start executing the RST interrupt

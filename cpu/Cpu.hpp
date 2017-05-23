@@ -3,66 +3,14 @@
 
 #include "MemoryMapper.hpp"
 #include "RomReader.hpp"
+#include "Addressing.hpp"
 #include "Stack.hpp"
 #include "CpuStatus.hpp"
+#include "OpCode.hpp"
 #include "Log.hpp"
 
 #ifndef __CPU__
 #define __CPU__
-
-enum AddressingMode {
-    Interrupt,
-    Accumulator,
-    BlockMove,
-    Implied,
-    Immediate,
-    Absolute,
-    AbsoluteProgram,         // Absolute using Program Bank instead of Data Bank
-    AbsoluteLong,
-    AbsoluteIndirect,
-    AbsoluteIndirectLong,
-    AbsoluteIndexedIndirect, // index with X
-    AbsoluteIndexedWithX,
-    AbsoluteLongIndexedWithX,
-    AbsoluteIndexedWithY,
-    DirectPage,
-    DirectPageIndexedWithX,
-    DirectPageIndexedWithY,
-    DirectPageIndirect,
-    DirectPageIndirectLong,
-    DirectPageIndexedIndirectWithX,
-    DirectPageIndirectIndexedWithY,
-    DirectPageIndirectLongIndexedWithY,
-    StackImplied,
-    StackRelative,
-    StackAbsolute,
-    StackDirectPageIndirect,
-    StackProgramCounterRelativeLong,
-    StackRelativeIndirectIndexedWithY,
-    ProgramCounterRelative,
-    ProgramCounterRelativeLong
-};
-
-class OpCode {
-    private:
-        uint8_t mCode;
-        const char * const mName;
-        AddressingMode mAddressingMode;
-    public:
-        OpCode(uint8_t, const char * const, const AddressingMode &);
-
-        uint8_t getCode() {
-            return mCode;
-        }
-
-        const char *getName() {
-            return mName;
-        }
-
-        const AddressingMode getAddressingMode() {
-            return mAddressingMode;
-        }
-};
 
 class Cpu {
     public:
@@ -72,6 +20,8 @@ class Cpu {
 
         // Temporary
         bool executeNext();
+        // Deprecated
+        bool useDeprecatedExecutor(OpCode &opCode);
 
         void logCpuStatus();
 
@@ -135,9 +85,13 @@ class Cpu {
         int executeBranchShortOnCondition(bool, OpCode &);
         int executeBranchLongOnCondition(bool, OpCode &);
 
-        int executeORA(OpCode &);
-        int executeORA8Bit(OpCode &);
-        int executeORA16Bit(OpCode &);
+        void executeORA(OpCode &);
+        void executeORA8Bit(OpCode &);
+        void executeORA16Bit(OpCode &);
+
+        void executeStack(OpCode &opCode);
+
+        static OpCode OP_CODE_TABLE[];
 };
 
 #endif
