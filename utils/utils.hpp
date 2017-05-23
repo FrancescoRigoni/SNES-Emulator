@@ -14,6 +14,10 @@ namespace Binary {
     bool is8bitValueZero(uint8_t value);
     bool is16bitValueZero(uint16_t value);
     void setLower8BitsOf16BitsValue(uint16_t *destination, uint8_t value);
+    void setBitIn8BitValue(uint8_t *value, uint8_t bitNumber);
+    void clearBitIn8BitValue(uint8_t *value, uint8_t bitNumber);
+    void setBitIn16BitValue(uint16_t *value, uint8_t bitNumber);
+    void clearBitIn16BitValue(uint16_t *value, uint8_t bitNumber);
 }
 
 #endif

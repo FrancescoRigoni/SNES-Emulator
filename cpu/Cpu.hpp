@@ -12,6 +12,11 @@
 #ifndef __CPU__
 #define __CPU__
 
+// Uncomment the following define for 65C02 emulation
+// #define EMU_65C02
+
+#define LOG_UNEXPECTED_OPCODE(opCode) Log::err(LOG_TAG).str("Unexpected OpCode: ").str(opCode.getName()).show();
+
 class Cpu {
     public:
         Cpu(RomReader &, MemoryMapper &);
@@ -70,10 +75,10 @@ class Cpu {
         uint16_t indexWithXRegister();
         uint16_t indexWithYRegister();
 
-        Address getAddressOfOpCodeData(OpCode &opCode);
-        bool opCodeAddressingCrossesPageBoundary(OpCode &opCode);
+        Address getAddressOfOpCodeData(OpCode &);
+        bool opCodeAddressingCrossesPageBoundary(OpCode &);
 
-        void trace(OpCode &opCode);
+        void trace(OpCode &);
 
         void setProgramAddress(uint8_t, uint16_t);
         void setProgramAddress(Address &);
@@ -81,15 +86,21 @@ class Cpu {
         void addToProgramAddress(int);
         void addToProgramAddressAndCycles(int, int);
 
-        // OpCode specific
         int executeBranchShortOnCondition(bool, OpCode &);
         int executeBranchLongOnCondition(bool, OpCode &);
 
+        // OpCodes implementations. See OpCode_XXX.
         void executeORA(OpCode &);
         void executeORA8Bit(OpCode &);
         void executeORA16Bit(OpCode &);
-
-        void executeStack(OpCode &opCode);
+        void executeStack(OpCode &);
+        void executeStatusReg(OpCode &);
+        void executeMemoryROL(OpCode &);
+        void executeAccumulatorROL(OpCode &);
+        void executeROL(OpCode &);
+        void executeMemoryROR(OpCode &);
+        void executeAccumulatorROR(OpCode &);
+        void executeROR(OpCode &);
 
         static OpCode OP_CODE_TABLE[];
 };

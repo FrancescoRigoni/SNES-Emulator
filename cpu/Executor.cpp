@@ -295,14 +295,6 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
             }
             break;
         }
-        case(0xC2):  // REP #const
-        {
-            uint8_t value = mMemoryMapper.readByte(getAddressOfOpCodeData(opCode));
-            uint8_t statusByte = mCpuStatus.getRegisterValue();
-            mCpuStatus.setRegisterValue(statusByte & ~value);
-            addToProgramAddressAndCycles(2,3);
-            break;
-        }
         case(0xC8):  // INY
         {
             if (indexIs8BitWide()) {

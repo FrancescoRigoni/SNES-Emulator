@@ -205,7 +205,7 @@ void Cpu::executeORA(OpCode &opCode) {
         }
         default:
         {
-            Log::err(LOG_TAG).str("Unexpected OpCode: ").str(opCode.getName()).show();
+            LOG_UNEXPECTED_OPCODE(opCode);
         }
     }
 }

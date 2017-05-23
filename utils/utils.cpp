@@ -36,4 +36,26 @@ void setLower8BitsOf16BitsValue(uint16_t *destination, uint8_t value) {
     *destination |= value;
 }
 
+void setBitIn8BitValue(uint8_t *value, uint8_t bitNumber) {
+    uint8_t mask = 1 << bitNumber;
+    *value = *value | mask;
+}
+
+void clearBitIn8BitValue(uint8_t *value, uint8_t bitNumber) {
+    uint8_t mask = 1 << bitNumber;
+    mask = mask ^ 0xFF;
+    *value = *value & mask;
+}
+
+void setBitIn16BitValue(uint16_t *value, uint8_t bitNumber) {
+    uint16_t mask = 1 << bitNumber;
+    *value = *value | mask;
+}
+
+void clearBitIn16BitValue(uint16_t *value, uint8_t bitNumber) {
+    uint16_t mask = 1 << bitNumber;
+    mask = mask ^ 0xFFFF;
+    *value = *value & mask;
+}
+
 }
