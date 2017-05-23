@@ -1,6 +1,8 @@
 
 #include "Cpu.hpp"
 
+#define LOG_TAG "Cpu::executeStack"
+
 /**
  * This file contains the implementation for every stack related OpCode.
  */
@@ -148,6 +150,10 @@ void Cpu::executeStack(OpCode &opCode) {
                 addToProgramAddressAndCycles(1, 5);
             }
             break;
+        }
+        default:
+        {
+            Log::err(LOG_TAG).str("Unexpected OpCode: ").str(opCode.getName()).show();
         }
     }
 }

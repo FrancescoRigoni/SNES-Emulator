@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#define LOG_TAG "Cpu::executeORA"
+
 /**
  * This file contains a bunch of methods used by ORA OpCodes.
  * Actual execution of the opcodes is performed inside Executor.cpp
@@ -200,6 +202,10 @@ void Cpu::executeORA(OpCode &opCode) {
                 addToProgramAddressAndCycles(4,6);
             }
             break;
+        }
+        default:
+        {
+            Log::err(LOG_TAG).str("Unexpected OpCode: ").str(opCode.getName()).show();
         }
     }
 }
