@@ -477,36 +477,7 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
             break;
         }*/
         /*
-        case(0xA8):  // TAY
-        {
-
-            if ((accumulator8Bits() && index8Bits()) || (accumulator16Bits() && index8Bits())) {
-                mY = lower8BitsOf(mA);
-                updateZeroFlagFromLower8BitsOf(mY);
-                updateSignFlagFromLower8BitsOf(mY);
-            } else {
-                mY = mA;
-                updateZeroFlagFrom16BitValue(mY);
-                updateSignFlagFrom16BitValue(mY);
-            }
-            addToProgramAddressAndCycles(1,2);
-            break;
-        }
-        case(0xAA):  // TAX
-        {
-
-            if ((accumulator8Bits() && index8Bits()) || (accumulator16Bits() && index8Bits())) {
-                mX = lower8BitsOf(mA);
-                updateZeroFlagFromLower8BitsOf(mX);
-                updateSignFlagFromLower8BitsOf(mX);
-            } else {
-                mX = mA;
-                updateZeroFlagFrom16BitValue(mX);
-                updateSignFlagFrom16BitValue(mX);
-            }
-            addToProgramAddressAndCycles(1,2);
-            break;
-        }*/
+        */
 
         /*
         case(0xB0):  // BCS
