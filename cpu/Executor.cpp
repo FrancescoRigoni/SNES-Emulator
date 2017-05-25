@@ -167,18 +167,7 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
             addToCycles(executeBranchLongOnCondition(true, opCode));
             break;
         }
-        case(0x85):  // STA direct page
-        {
-            int cycles = Binary::is8bitValueZero(Binary::lower8BitsOf(mD)) ? 3 : 4;
-            if (accumulatorIs8BitWide()) {
-                mMemoryMapper.storeByte(opCodeDataAddress, Binary::lower8BitsOf(mA));
-                addToProgramAddressAndCycles(2, cycles);
-            } else {
-                mMemoryMapper.storeTwoBytes(opCodeDataAddress, mA);
-                addToProgramAddressAndCycles(2, cycles+1);
-            }
-            break;
-        }
+
         case(0x88):  // DEY
         {
             if (indexIs8BitWide()) {
@@ -194,17 +183,7 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
             addToProgramAddressAndCycles(1,2);
             break;
         }
-        case(0x8D):  // STA addr
-        {
-            if (accumulatorIs8BitWide()) {
-                mMemoryMapper.storeByte(opCodeDataAddress, Binary::lower8BitsOf(mA));
-                addToProgramAddressAndCycles(3,4);
-            } else {
-                mMemoryMapper.storeTwoBytes(opCodeDataAddress, mA);
-                addToProgramAddressAndCycles(3,5);
-            }
-            break;
-        }
+
         case(0x9C):  // STZ absolute
         {
             if (accumulatorIs8BitWide()) {
@@ -504,57 +483,18 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
             break;
         }*/
         /*
-        case(0x8F):  // STA absolute long
-        {
-            uint16_t offset = mMemoryMapper.readTwoBytes(mPB, mPC+1);
-            uint8_t bank = mMemoryMapper.readByte(mPB, mPC+3);
 
-            if (accumulator8Bits()) {
-                mMemoryMapper.storeByte(0x00, offset, lower8BitsOf(mA));
-                addToProgramAddressAndCycles(4,5);
-            } else {
-                mMemoryMapper.storeTwoBytes(0x00, offset, mA);
-                addToProgramAddressAndCycles(4,6);
-            }
-
-            break;
-        }
         case(0x90):  // BCC
         {
 
             addToCycles(executeBranchOnCondition(!(mP&STATUS_CARRY), opCode));
             break;
         }
-        case(0x99):  // STA absolute indexed, Y
-        {
-            uint16_t offset = mMemoryMapper.readTwoBytes(mPB, mPC+1);
-
-            if (accumulator8Bits()) {
-                mMemoryMapper.storeByte(mDB, offset + indexWithYRegister(), lower8BitsOf(mA));
-                addToProgramAddressAndCycles(3, 5);
-            } else {
-                mMemoryMapper.storeTwoBytes(mDB, offset + indexWithYRegister(), mA);
-                addToProgramAddressAndCycles(3, 6);
-            }
-            break;
-        }*/
+        */
 
 
         /*
-        case(0x9F):  // STA absolute long indexed, X
-        {
-            uint16_t offset = mMemoryMapper.readTwoBytes(mPB, mPC+1);
-            uint8_t bank = mMemoryMapper.readByte(mPB, mPC+3);
 
-            if (accumulator8Bits()) {
-                mMemoryMapper.storeByte(bank, offset + indexWithXRegister(), lower8BitsOf(mA));
-                addToProgramAddressAndCycles(4, 5);
-            } else {
-                mMemoryMapper.storeTwoBytes(bank, offset + indexWithXRegister(), mA);
-                addToProgramAddressAndCycles(4, 6);
-            }
-            break;
-        }
         case(0xA0):  // LDY #const
         {
             if (index8Bits()) {

@@ -113,6 +113,7 @@ class Cpu {
         void execute8BitBCDADC(OpCode &);
         void execute16BitBCDADC(OpCode &);
         void executeADC(OpCode &);
+        void executeSTA(OpCode &);
 
         static OpCode OP_CODE_TABLE[];
 };

@@ -17,6 +17,39 @@ void Cpu::executeStatusReg(OpCode &opCode) {
             addToProgramAddressAndCycles(2, 3);
             break;
         }
+        case(0x38):  // SEC
+        {
+            mCpuStatus.setCarryFlag();
+            addToProgramAddressAndCycles(1, 2);
+            break;
+        }
+        case(0xF8):  // SED
+        {
+            mCpuStatus.setDecimalFlag();
+            addToProgramAddressAndCycles(1, 2);
+            break;
+        }
+        case(0x78):  // SEI
+        {
+            mCpuStatus.setInterruptDisableFlag();
+            addToProgramAddressAndCycles(1, 2);
+            break;
+        }
+        case(0xE2):  // SEP
+        {
+            uint8_t value = mMemoryMapper.readByte(getAddressOfOpCodeData(opCode));
+            if (mCpuStatus.emulationFlag()) {
+                // In emulation mode status bits 4 and 5 are not affected
+                // 0xCF = 11001111
+                value &= 0xCF;
+            }
+            uint8_t statusReg = mCpuStatus.getRegisterValue();
+            statusReg |= value;
+            mCpuStatus.setRegisterValue(statusReg);
+
+            addToProgramAddressAndCycles(2, 3);
+            break;
+        }
         default: {
             LOG_UNEXPECTED_OPCODE(opCode);
         }
