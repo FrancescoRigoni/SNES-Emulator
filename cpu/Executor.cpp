@@ -133,13 +133,6 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
             addToCycles(4);
             break;
         }
-        case(0x60):  // RTS
-        {
-            uint16_t offset = mStack.pull16Bit();
-            setProgramAddress(mProgramAddress.bank, offset + 1);
-            addToCycles(6);
-            break;
-        }
         case(0x64):  // STZ direct page
         {
             int opCycles = Binary::lower8BitsOf(mD) != 0 ? 1 : 0;
@@ -151,15 +144,6 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
                 opCycles += 4;
             }
             addToProgramAddressAndCycles(2, opCycles);
-            break;
-        }
-        case(0x6B):  // RTL
-        {
-            Address returnAddress;
-            returnAddress.offset = mStack.pull16Bit();
-            returnAddress.bank = mStack.pull8Bit();
-            setProgramAddress(returnAddress);
-            addToProgramAddressAndCycles(1,6);
             break;
         }
         case(0x70):  // BVS

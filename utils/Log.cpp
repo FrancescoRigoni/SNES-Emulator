@@ -47,7 +47,7 @@ Log &Log::hex(uint32_t val, uint8_t w) {
 }
 
 Log &Log::dec(uint32_t val) {
-    if (mEnabled) mStream << val;
+    if (mEnabled) mStream << std::dec << val;
     return *this;
 }
 

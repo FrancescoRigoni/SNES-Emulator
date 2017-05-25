@@ -30,20 +30,24 @@ void disable_waiting_for_enter(void)
 
 int main(int argc, char **argv) {
 	Log::vrb(LOG_TAG).str("+++ SNES EMULATOR WANNABE +++").show();
-	
+
+	uint8_t two = 2;
+	uint8_t thirtyone = 31;
+	uint8_t result = two - thirtyone;
+
 	disable_waiting_for_enter();
-	
+
     RomReader reader = RomReader(std::string(argv[1]));
     MemoryMapper memoryMapper = MemoryMapper(reader);
     Cpu cpu(reader, memoryMapper);
-    
+
     cpu.setBreakPoint(0x00, 0x8023);
 
 	char i;
 	/*while (cpu.executeNext()){
 		//usleep(200*1000);
 	};*/
-	
+
 	while (true){
 		char c = getchar();
 		if (c == 'z') cpu.debug_setZeroFlag();
@@ -51,7 +55,7 @@ int main(int argc, char **argv) {
 		else if (c == 'q') break;
 		else cpu.executeNext();
 	};
-	
+
 	restore_terminal_settings();
 
 }

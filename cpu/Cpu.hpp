@@ -101,6 +101,18 @@ class Cpu {
         void executeMemoryROR(OpCode &);
         void executeAccumulatorROR(OpCode &);
         void executeROR(OpCode &);
+        void executeInterrupt(OpCode &);
+        void executeJumpReturn(OpCode &);
+        void execute8BitSBC(OpCode &);
+        void execute16BitSBC(OpCode &);
+        void execute8BitBCDSBC(OpCode &);
+        void execute16BitBCDSBC(OpCode &);
+        void executeSBC(OpCode &);
+        void execute8BitADC(OpCode &);
+        void execute16BitADC(OpCode &);
+        void execute8BitBCDADC(OpCode &);
+        void execute16BitBCDADC(OpCode &);
+        void executeADC(OpCode &);
 
         static OpCode OP_CODE_TABLE[];
 };
