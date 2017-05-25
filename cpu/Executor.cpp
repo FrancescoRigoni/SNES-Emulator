@@ -119,14 +119,7 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
             addToCycles(executeBranchShortOnCondition(!mCpuStatus.overflowFlag(), opCode));
             break;
         }
-        case(0x5B):  // TCD
-        {
-            mD = mA;
-            mCpuStatus.updateZeroFlagFrom16BitValue(mD);
-            mCpuStatus.updateSignFlagFrom16BitValue(mD);
-            addToProgramAddressAndCycles(1,2);
-            break;
-        }
+
         case(0x5C):  // JMP absolute long
         {
             setProgramAddress(opCodeDataAddress);
@@ -136,12 +129,6 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
         case(0x70):  // BVS
         {
             addToCycles(executeBranchShortOnCondition(mCpuStatus.overflowFlag(), opCode));
-            break;
-        }
-        case(0x78):  // SEI
-        {
-            mCpuStatus.setInterruptDisableFlag();
-            addToProgramAddressAndCycles(1,2);
             break;
         }
         case(0x80):  // BRA
@@ -281,14 +268,6 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
                 else mCpuStatus.setCarryFlag();
                 addToProgramAddressAndCycles(2,2);
             }
-            break;
-        }
-        case(0xE2):  // SEP #const
-        {
-            uint8_t value = mMemoryMapper.readByte(opCodeDataAddress);
-            uint8_t statusByte = mCpuStatus.getRegisterValue();
-            mCpuStatus.setRegisterValue(statusByte | value);
-            addToProgramAddressAndCycles(2,3);
             break;
         }
         case(0xE8):  // INX

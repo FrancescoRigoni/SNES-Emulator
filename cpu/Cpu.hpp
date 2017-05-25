@@ -118,6 +118,7 @@ class Cpu {
         void executeSTY(OpCode &);
         void executeSTZ(OpCode &);
         void executeTAXTAY(OpCode &);
+        void executeTDCTCD(OpCode &);
 
         static OpCode OP_CODE_TABLE[];
 };
