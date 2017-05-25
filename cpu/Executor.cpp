@@ -133,19 +133,6 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
             addToCycles(4);
             break;
         }
-        case(0x64):  // STZ direct page
-        {
-            int opCycles = Binary::lower8BitsOf(mD) != 0 ? 1 : 0;
-            if (accumulatorIs8BitWide()) {
-                mMemoryMapper.storeByte(opCodeDataAddress, (uint8_t)0x00);
-                opCycles += 3;
-            } else {
-                mMemoryMapper.storeTwoBytes(opCodeDataAddress, (uint16_t)0x0000);
-                opCycles += 4;
-            }
-            addToProgramAddressAndCycles(2, opCycles);
-            break;
-        }
         case(0x70):  // BVS
         {
             addToCycles(executeBranchShortOnCondition(mCpuStatus.overflowFlag(), opCode));
@@ -181,29 +168,6 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
                 mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mY);
             }
             addToProgramAddressAndCycles(1,2);
-            break;
-        }
-
-        case(0x9C):  // STZ absolute
-        {
-            if (accumulatorIs8BitWide()) {
-                mMemoryMapper.storeByte(opCodeDataAddress, (uint8_t)0x00);
-                addToProgramAddressAndCycles(3, 4);
-            } else {
-                mMemoryMapper.storeTwoBytes(opCodeDataAddress, (uint16_t)0x0000);
-                addToProgramAddressAndCycles(3, 5);
-            }
-            break;
-        }
-        case(0x9E):  // STZ absolute indexed, X
-        {
-            if (accumulatorIs8BitWide()) {
-                mMemoryMapper.storeByte(opCodeDataAddress, (uint8_t)0x00);
-                addToProgramAddressAndCycles(3, 5);
-            } else {
-                mMemoryMapper.storeTwoBytes(opCodeDataAddress, (uint16_t)0x0000);
-                addToProgramAddressAndCycles(3, 6);
-            }
             break;
         }
         case(0xA2):  // LDX #const
