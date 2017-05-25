@@ -712,52 +712,7 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
             }
             break;
         }
-        case(0x8E):  // STX #addr
-        {
-            uint16_t offset = mMemoryMapper.readTwoBytes(mPB, mPC+1);
-
-            if (index16Bits()) {
-                mMemoryMapper.storeTwoBytes(mDB, offset, mX);
-                addToProgramAddressAndCycles(3,5);
-            } else {
-                mMemoryMapper.storeByte(mDB, offset, lower8BitsOf(mX));
-                addToProgramAddressAndCycles(3,4);
-            }
-            break;
-        }
-
-        case(0x86):  // STX direct page
-        {
-            int opCycles = mD != 0 ? 1 : 0;
-            uint8_t offset = mMemoryMapper.readByte(mPB, mPC+1);
-
-            if (index16Bits()) {
-                mMemoryMapper.storeTwoBytes(mDB, mD + offset, mX);
-                addToProgramAddressAndCycles(2, opCycles + 4);
-            } else {
-                mMemoryMapper.storeByte(mDB, mD + offset, lower8BitsOf(mX));
-                addToProgramAddressAndCycles(2, opCycles + 3);
-            }
-            break;
-        }
-        case(0x96):  // STX direct page indexed, X
-        {
-            int opCycles = mD != 0 ? 1 : 0;
-            uint8_t offset = mMemoryMapper.readByte(mPB, mPC+1);
-
-            if (index16Bits()) {
-                mMemoryMapper.storeTwoBytes(mDB, mD + indexWithYRegister() + offset, mX);
-                addToProgramAddressAndCycles(2, opCycles + 5);
-            } else {
-                mMemoryMapper.storeByte(mDB, mD + indexWithYRegister() + offset, lower8BitsOf(mX));
-                addToProgramAddressAndCycles(2, opCycles + 4);
-            }
-            break;
-        }*/
-
-
-
-
+*/
         /*
         case(0xEB):  // XBA
         {
