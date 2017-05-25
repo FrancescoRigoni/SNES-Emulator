@@ -115,6 +115,7 @@ class Cpu {
         void executeADC(OpCode &);
         void executeSTA(OpCode &);
         void executeSTX(OpCode &);
+        void executeSTY(OpCode &);
 
         static OpCode OP_CODE_TABLE[];
 };

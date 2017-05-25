@@ -670,48 +670,6 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
             }
             break;
         }
-        case(0x8C):  // STY #addr
-        {
-            uint16_t offset = mMemoryMapper.readTwoBytes(mPB, mPC+1);
-
-            if (index16Bits()) {
-                mMemoryMapper.storeTwoBytes(mDB, offset, mY);
-                addToProgramAddressAndCycles(3,5);
-            } else {
-                mMemoryMapper.storeByte(mDB, offset, lower8BitsOf(mY));
-                addToProgramAddressAndCycles(3,4);
-            }
-            break;
-        }
-
-        case(0x84):  // STY direct page
-        {
-            int opCycles = mD != 0 ? 1 : 0; // CHECK should be lower8BitsOf?
-            uint8_t offset = mMemoryMapper.readByte(mPB, mPC+1);
-
-            if (index16Bits()) {
-                mMemoryMapper.storeTwoBytes(mDB, mD + offset, mY);
-                addToProgramAddressAndCycles(2, opCycles + 4);
-            } else {
-                mMemoryMapper.storeByte(mDB, mD + offset, lower8BitsOf(mY));
-                addToProgramAddressAndCycles(2, opCycles + 3);
-            }
-            break;
-        }
-        case(0x94):  // STY direct page indexed, X
-        {
-            int opCycles = mD != 0 ? 1 : 0; // CHECK should be lower8BitsOf?
-            uint8_t offset = mMemoryMapper.readByte(mPB, mPC+1);
-
-            if (index16Bits()) {
-                mMemoryMapper.storeTwoBytes(mDB, mD + indexWithXRegister() + offset, mY);
-                addToProgramAddressAndCycles(2, opCycles + 5);
-            } else {
-                mMemoryMapper.storeByte(mDB, mD + indexWithXRegister() + offset, lower8BitsOf(mY));
-                addToProgramAddressAndCycles(2, opCycles + 4);
-            }
-            break;
-        }
 */
         /*
         case(0xEB):  // XBA
