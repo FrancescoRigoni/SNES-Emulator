@@ -319,48 +319,7 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
         }
 
         /*
-        case(0x9A):  // TXS
-        {
-            if (mEmulationFlag) {
-                mStack = Stack(&mMemoryMapper, 0x100 | lower8BitsOf(mX));
-            } else if (index8Bits()) {
-                mStack = Stack(&mMemoryMapper, lower8BitsOf(mX));
-            } else {
-                mStack = Stack(&mMemoryMapper, mX);
-            }
-            addToProgramAddressAndCycles(1, 2);
-            break;
-        }/*
-        case(0x9B):  // TXY
-        {
 
-            if (index8Bits()) {
-                mY = lower8BitsOf(mX);
-                updateSignFlagFromLower8BitsOf(mY);
-                updateZeroFlagFromLower8BitsOf(mY);
-            } else {
-                mY = mX;
-                updateSignFlagFrom16BitValue(mY);
-                updateZeroFlagFrom16BitValue(mY);
-            }
-            addToProgramAddressAndCycles(1, 2);
-            break;
-        }
-        case(0xBB):  // TYX
-        {
-
-            if (index8Bits()) {
-                mY = lower8BitsOf(mX);
-                updateSignFlagFromLower8BitsOf(mY);
-                updateZeroFlagFromLower8BitsOf(mY);
-            } else {
-                mY = mX;
-                updateSignFlagFrom16BitValue(mY);
-                updateZeroFlagFrom16BitValue(mY);
-            }
-            addToProgramAddressAndCycles(1, 2);
-            break;
-        }
         case(0x8A):  // TXA
         {
 
