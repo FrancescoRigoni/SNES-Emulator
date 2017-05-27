@@ -68,6 +68,10 @@ void Cpu::addToCycles(int cycles) {
     mTotalCyclesCounter += cycles;
 }
 
+void Cpu::subtractFromCycles(int cycles) {
+    mTotalCyclesCounter -= cycles;
+}
+
 void Cpu::addToProgramAddress(int bytes) {
     mProgramAddress.offset += bytes;
 }

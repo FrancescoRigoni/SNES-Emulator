@@ -45,12 +45,8 @@ class Cpu {
         uint16_t mY;
         // Status register
         CpuStatus mCpuStatus;
-        // Program bank register
-        //uint8_t mPB;
         // Data bank rgister
         uint8_t mDB;
-        // Program counter register
-        //uint16_t mPC;
         // Direct page register
         uint16_t mD;
 
@@ -83,6 +79,7 @@ class Cpu {
         void setProgramAddress(uint8_t, uint16_t);
         void setProgramAddress(Address &);
         void addToCycles(int);
+        void subtractFromCycles(int);
         void addToProgramAddress(int);
         void addToProgramAddressAndCycles(int, int);
 
@@ -118,6 +115,9 @@ class Cpu {
         void executeSTY(OpCode &);
         void executeSTZ(OpCode &);
         void executeTransfer(OpCode &);
+        void executeMemoryASL(OpCode &);
+        void executeAccumulatorASL(OpCode &);
+        void executeASL(OpCode &);
 
         static OpCode OP_CODE_TABLE[];
 };
