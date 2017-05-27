@@ -121,6 +121,9 @@ class Cpu {
         void executeAND8Bit(OpCode &);
         void executeAND16Bit(OpCode &);
         void executeAND(OpCode &);
+        void executeLDA8Bit(OpCode &);
+        void executeLDA16Bit(OpCode &);
+        void executeLDA(OpCode &);
 
         static OpCode OP_CODE_TABLE[];
 };
