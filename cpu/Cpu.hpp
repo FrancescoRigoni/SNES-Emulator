@@ -118,6 +118,9 @@ class Cpu {
         void executeMemoryASL(OpCode &);
         void executeAccumulatorASL(OpCode &);
         void executeASL(OpCode &);
+        void executeAND8Bit(OpCode &);
+        void executeAND16Bit(OpCode &);
+        void executeAND(OpCode &);
 
         static OpCode OP_CODE_TABLE[];
 };

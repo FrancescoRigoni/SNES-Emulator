@@ -2,13 +2,12 @@
 
 #include <cmath>
 
-#define LOG_TAG "Cpu::executeORA"
+#define LOG_TAG "Cpu::executeAND"
 
 /**
- * This file contains a bunch of methods used by ORA OpCodes.
- * Actual execution of the opcodes is performed inside Executor.cpp
- * These methods are called from there.
+ * This file contains implementations for all ORA OpCodes.
  */
+
 void Cpu::executeORA8Bit(OpCode &opCode) {
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
     uint8_t operand = mMemoryMapper.readByte(opCodeDataAddress);
