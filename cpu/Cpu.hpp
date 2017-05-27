@@ -124,6 +124,12 @@ class Cpu {
         void executeLDA8Bit(OpCode &);
         void executeLDA16Bit(OpCode &);
         void executeLDA(OpCode &);
+        void executeLDX8Bit(OpCode &);
+        void executeLDX16Bit(OpCode &);
+        void executeLDX(OpCode &);
+        void executeLDY8Bit(OpCode &);
+        void executeLDY16Bit(OpCode &);
+        void executeLDY(OpCode &);
 
         static OpCode OP_CODE_TABLE[];
 };
