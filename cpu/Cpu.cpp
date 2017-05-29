@@ -5,10 +5,10 @@
 
 #define LOG_TAG "Cpu"
 
-Cpu::Cpu(RomReader &romReader, MemoryMapper &memoryMapper) :
+Cpu::Cpu(MemoryMapper &memoryMapper, EmulationModeInterrupts *emulationInterrupts, NativeModeInterrupts *nativeInterrupts) :
             mMemoryMapper(memoryMapper),
-            mEmulationInterrupts(romReader.mEmulationModeInterrupts),
-            mNativeInterrupts(romReader.mNativeModeInterrupts),
+            mEmulationInterrupts(emulationInterrupts),
+            mNativeInterrupts(nativeInterrupts),
             mStack(&mMemoryMapper) {
 
     initCpu();

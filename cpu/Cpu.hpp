@@ -2,7 +2,8 @@
 #include <stdint.h>
 
 #include "MemoryMapper.hpp"
-#include "RomReader.hpp"
+#include "Cartridge.hpp"
+#include "Interrupt.hpp"
 #include "Addressing.hpp"
 #include "Stack.hpp"
 #include "CpuStatus.hpp"
@@ -19,7 +20,7 @@
 
 class Cpu {
     public:
-        Cpu(RomReader &, MemoryMapper &);
+        Cpu(MemoryMapper &, EmulationModeInterrupts *, NativeModeInterrupts *);
 
         void setBreakPoint(uint8_t bank, uint16_t offset);
 
@@ -33,9 +34,10 @@ class Cpu {
         void debug_setZeroFlag();
 
     private:
-        const RomReader::EmulationModeInterrupts * const mEmulationInterrupts;
-        const RomReader::NativeModeInterrupts * const mNativeInterrupts;
         MemoryMapper &mMemoryMapper;
+
+        EmulationModeInterrupts *mEmulationInterrupts;
+        NativeModeInterrupts *mNativeInterrupts;
 
         // Accumulator register
         uint16_t mA;

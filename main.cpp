@@ -1,6 +1,7 @@
 
 #include "Cpu.hpp"
-#include "RomReader.hpp"
+#include "Cartridge.hpp"
+#include "Rom.hpp"
 #include "MemoryMapper.hpp"
 #include "Log.hpp"
 
@@ -9,6 +10,11 @@
 #include <unistd.h>
 
 #define LOG_TAG "MAIN"
+
+namespace InterruptTable {
+    NativeModeInterrupts *native;
+    EmulationModeInterrupts *emulation;
+}
 
 static struct termios oldt;
 
@@ -31,15 +37,20 @@ void disable_waiting_for_enter(void)
 int main(int argc, char **argv) {
 	Log::vrb(LOG_TAG).str("+++ SNES EMULATOR WANNABE +++").show();
 
-	uint8_t two = 2;
-	uint8_t thirtyone = 31;
-	uint8_t result = two - thirtyone;
-
 	disable_waiting_for_enter();
 
-    RomReader reader = RomReader(std::string(argv[1]));
-    MemoryMapper memoryMapper = MemoryMapper(reader);
-    Cpu cpu(reader, memoryMapper);
+    Cartridge cartridgeReader = Cartridge(std::string(argv[1]));
+
+    if (cartridgeReader.getRomType() == LO_ROM) {
+        InterruptTable::native = (NativeModeInterrupts *) (cartridgeReader.getRomData() + NATIVE_INTERRUPT_TABLE_LOROM);
+        InterruptTable::emulation = (EmulationModeInterrupts *) cartridgeReader.getRomData() + EMULATED_INTERRUPT_TABLE_LOROM;
+    } else {
+        InterruptTable::native = (NativeModeInterrupts *) (cartridgeReader.getRomData() + NATIVE_INTERRUPT_TABLE_HIROM);
+        InterruptTable::emulation = (EmulationModeInterrupts *) (cartridgeReader.getRomData() + EMULATED_INTERRUPT_TABLE_HIROM);
+    }
+
+    MemoryMapper memoryMapper = MemoryMapper(&cartridgeReader);
+    Cpu cpu(memoryMapper, InterruptTable::emulation, InterruptTable::native);
 
     cpu.setBreakPoint(0x00, 0x8023);
 
