@@ -13,7 +13,7 @@ bool Cpu::executeNext() {
     trace(opCode);
     // TODO: make decent debugger
     if (mBreakpointEnabled) {
-        if (mProgramAddress.bank == mBreakBank && mProgramAddress.offset == mBreakOffset) return false;
+        if (mProgramAddress.getBank() == mBreakBank && mProgramAddress.getOffset() == mBreakOffset) return false;
     }
     // Execute it
     if (opCode.execute(*this)) {
@@ -30,15 +30,17 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
         case(0x00):  // BRK
         {
             if (mCpuStatus.emulationFlag()) {
-                mStack.push16Bit(mProgramAddress.offset+2);
+                mStack.push16Bit(mProgramAddress.getOffset()+2);
                 mStack.push8Bit(mCpuStatus.getRegisterValue());
-                setProgramAddress(0x00, mEmulationInterrupts->brkIrq);
+                Address newAddress(0x00, mEmulationInterrupts->brkIrq);
+                setProgramAddress(newAddress);
                 addToCycles(7);
             } else {
-                mStack.push8Bit(mProgramAddress.bank);
-                mStack.push16Bit(mProgramAddress.offset+2);
+                mStack.push8Bit(mProgramAddress.getBank());
+                mStack.push16Bit(mProgramAddress.getOffset()+2);
                 mStack.push8Bit(mCpuStatus.getRegisterValue());
-                setProgramAddress(0x00, mNativeInterrupts->brk);
+                Address newAddress(0x00, mNativeInterrupts->brk);
+                setProgramAddress(newAddress);
                 addToCycles(8);
             }
             // This is done by the 65C02 but not by the NMOS 6502
@@ -74,7 +76,7 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
         }
         case(0x20):  // JSR addr
         {
-            mStack.push16Bit(mProgramAddress.offset+2);
+            mStack.push16Bit(mProgramAddress.getOffset()+2);
             Address destinationAddress = getAddressOfOpCodeData(opCode);
             setProgramAddress(destinationAddress);
             addToCycles(6);
@@ -83,8 +85,8 @@ bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
         case(0x22):  // JSR absolute long
         {
             Address destinationAddress = getAddressOfOpCodeData(opCode);
-            mStack.push8Bit(mProgramAddress.bank);
-            mStack.push16Bit(mProgramAddress.offset+3);
+            mStack.push8Bit(mProgramAddress.getBank());
+            mStack.push16Bit(mProgramAddress.getOffset()+3);
             setProgramAddress(destinationAddress);
             addToCycles(8);
             break;

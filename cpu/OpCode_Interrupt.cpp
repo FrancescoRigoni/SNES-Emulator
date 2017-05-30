@@ -14,11 +14,16 @@ void Cpu::executeInterrupt(OpCode &opCode) {
             // Note: The picture in the 65816 programming manual about this looks wrong.
             // This implementation follows the text instead.
             mCpuStatus.setRegisterValue(mStack.pull8Bit());
-            mProgramAddress.offset = mStack.pull16Bit();
+
             if (mCpuStatus.emulationFlag()) {
+                Address newProgramAddress(mProgramAddress.getBank(), mStack.pull16Bit());
+                mProgramAddress = newProgramAddress;
                 addToCycles(6);
             } else {
-                mProgramAddress.bank = mStack.pull8Bit();
+                uint16_t offset = mStack.pull16Bit();
+                uint8_t bank = mStack.pull8Bit();
+                Address newProgramAddress(bank, offset);
+                mProgramAddress = newProgramAddress;
                 addToCycles(7);
             }
         }

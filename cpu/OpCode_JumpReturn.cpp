@@ -11,17 +11,18 @@ void Cpu::executeJumpReturn(OpCode &opCode) {
     switch (opCode.getCode()) {
         case(0x6B):                 // RTL
         {
-            Address returnAddress;
-            returnAddress.offset = mStack.pull16Bit() + 1;
-            returnAddress.bank = mStack.pull8Bit();
+            uint16_t newOffset = mStack.pull16Bit() + 1;
+            uint8_t newBank = mStack.pull8Bit();
+
+            Address returnAddress(newBank, newOffset);
             setProgramAddress(returnAddress);
             addToProgramAddressAndCycles(1,6);
             break;
         }
         case(0x60):                 // RTS
         {
-            uint16_t offset = mStack.pull16Bit();
-            setProgramAddress(mProgramAddress.bank, offset + 1);
+            Address returnAddress(mProgramAddress.getBank(), mStack.pull16Bit());
+            setProgramAddress(returnAddress);
             addToCycles(6);
             break;
         }

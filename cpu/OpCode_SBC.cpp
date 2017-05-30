@@ -44,9 +44,10 @@ void Cpu::executeSBC(OpCode &opCode) {
     switch (opCode.getCode()) {
         case(0x6B):                 // RTL
         {
-            Address returnAddress;
-            returnAddress.offset = mStack.pull16Bit() + 1;
-            returnAddress.bank = mStack.pull8Bit();
+            uint16_t offset = mStack.pull16Bit() + 1;
+            uint8_t bank = mStack.pull8Bit();
+            Address returnAddress(bank, offset);
+
             setProgramAddress(returnAddress);
             addToProgramAddressAndCycles(1,6);
             break;

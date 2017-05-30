@@ -10,23 +10,21 @@
 
 #include "Rom.hpp"
 #include "Device.hpp"
+#include "MemoryMapper.hpp"
 #include "utils.hpp"
 
 class Cartridge : public Device {
     public:
-        Cartridge(const std::string &);
+        Cartridge(const std::string &, MemoryMapper &);
         ~Cartridge();
 
         RomType getRomType();
         uint8_t *getRomData();
 
         // Methods inherited from Device
-        void storeByte(Address&, uint8_t);
-        void storeTwoBytes(Address&, uint16_t);
-        uint8_t readByte(Address);
-        uint16_t readTwoBytes(Address);
-        Address readAddressAt(Address);
-        bool decodeAddress(Address, Address*);
+        void storeByte(const Address &, uint8_t) override;
+        uint8_t readByte(const Address &) override;
+        bool decodeAddress(const Address &, Address &) override;
         // End of methods inherited from Device
 
     private:

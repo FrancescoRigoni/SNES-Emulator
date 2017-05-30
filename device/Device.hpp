@@ -1,6 +1,8 @@
 #ifndef DEVICE_H
 #define DEVICE_H
 
+#include <stdint.h>
+
 #define BANK_SIZE_BYTES                0x10000
 #define PAGE_SIZE_BYTES                    256
 
@@ -14,10 +16,42 @@
 #define offsetInRange(offset, start, end) (offset >= start && offset <= end)
 #define bankIs(bank, what) (bank == what)
 
-typedef struct {
-    uint8_t bank;
-    uint16_t offset;
-} Address;
+#define RAW_ADDRESS(address) ((uint32_t)((address.getBank() * BANK_SIZE_BYTES) + address.getOffset()))
+
+class Address {
+    private:
+        uint8_t mBank;
+        uint16_t mOffset;
+
+    public:
+        static bool offsetsAreOnDifferentPages(uint16_t, uint16_t);
+        static Address sumOffsetToAddress(const Address &, uint16_t);
+        static Address sumOffsetToAddressNoWrapAround(const Address &, uint16_t);
+        static Address sumOffsetToAddressWrapAround(const Address &, uint16_t);
+
+        Address() {};
+        Address(uint8_t bank, uint16_t offset) : mBank(bank), mOffset(offset) {};
+
+        Address newWithOffset(uint16_t);
+        Address newWithOffsetNoWrapAround(uint16_t);
+        Address newWithOffsetWrapAround(uint16_t);
+
+        void incrementBy(uint16_t);
+        void decrementBy(uint16_t);
+
+        void getBankAndOffset(uint8_t *bank, uint16_t *offset) {
+            *bank = mBank;
+            *offset = mOffset;
+        }
+
+        uint8_t getBank() const {
+            return mBank;
+        }
+
+        uint16_t getOffset() const {
+            return mOffset;
+        }
+};
 
 /**
  Every device (PPU, APU, ...) implements this interface.
@@ -28,36 +62,18 @@ class Device {
           Stores one byte to the real address represented by the specified virtual address.
           That is: maps the virtual address to the real one and stores one byte in it.
          */
-        virtual void storeByte(Address&, uint8_t) = 0;
-
-        /**
-          Stores one byte to the real address represented by the specified virtual address.
-          That is: maps the virtual address to the real one and stores one byte in it.
-         */
-        virtual void storeTwoBytes(Address&, uint16_t) = 0;
+        virtual void storeByte(const Address &, uint8_t) = 0;
 
         /**
           Reads one byte from the real address represented by the specified virtual address.
           That is: maps the virtual address to the real one and reads from it.
          */
-        virtual uint8_t readByte(Address) = 0;
-
-        /**
-          Reads two bytes from the real address represented by the specified virtual address.
-          That is: maps the virtual address to the real one and reads from it.
-         */
-        virtual uint16_t readTwoBytes(Address) = 0;
-
-        /**
-          Reads one Address from the real address represented by the specified virtual address.
-          That is: maps the virtual address to the real one and reads one byte from it.
-         */
-        virtual Address readAddressAt(Address) = 0;
+        virtual uint8_t readByte(const Address &) = 0;
 
         /**
           Returns true if the address was decoded successfully by this device.
          */
-        virtual bool decodeAddress(Address, Address*);
+        virtual bool decodeAddress(const Address &, Address &) = 0;
 };
 
 #endif // DEVICE_H

@@ -4,42 +4,33 @@
 #define LOG_TAG "Addressing"
 
 bool Cpu::opCodeAddressingCrossesPageBoundary(OpCode &opCode) {
-    Address onePlusOpCodeAddress;
-    onePlusOpCodeAddress.bank = mProgramAddress.bank;
-    onePlusOpCodeAddress.offset = mProgramAddress.offset + 1;
-
     switch(opCode.getAddressingMode()) {
         case AbsoluteIndexedWithX:
         {
-            Address initialAddress;
-            initialAddress.bank = mDB;
-            initialAddress.offset = mMemoryMapper.readTwoBytes(onePlusOpCodeAddress);
+            Address initialAddress(mDB, mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1)));
             // TODO: figure out when to wrap around and when not to, it should not matter in this case
             // but it matters when fetching data
-            Address finalAddress = MemoryMapper::sumOffsetToAddressNoWrapAround(initialAddress, indexWithXRegister());
-            return mMemoryMapper.offsetsAreOnDifferentPages(initialAddress.offset, finalAddress.offset);
+            Address finalAddress = Address::sumOffsetToAddress(initialAddress, indexWithXRegister());
+            return Address::offsetsAreOnDifferentPages(initialAddress.getOffset(), finalAddress.getOffset());
         }
         case AbsoluteIndexedWithY:
         {
-            Address initialAddress;
-            initialAddress.bank = mDB;
-            initialAddress.offset = mMemoryMapper.readTwoBytes(onePlusOpCodeAddress);
+            Address initialAddress(mDB, mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1)));
             // TODO: figure out when to wrap around and when not to, it should not matter in this case
             // but it matters when fetching data
-            Address finalAddress = MemoryMapper::sumOffsetToAddressNoWrapAround(initialAddress, indexWithYRegister());
-            return mMemoryMapper.offsetsAreOnDifferentPages(initialAddress.offset, finalAddress.offset);
+            Address finalAddress = Address::sumOffsetToAddress(initialAddress, indexWithYRegister());
+            return Address::offsetsAreOnDifferentPages(initialAddress.getOffset(), finalAddress.getOffset());
         }
         case DirectPageIndirectIndexedWithY:
         {
-            uint16_t firstStageOffset = mD + mMemoryMapper.readByte(onePlusOpCodeAddress);
-            uint16_t secondStageOffset = mMemoryMapper.readTwoBytes(0x00, firstStageOffset);
-            Address thirdStageAddress;
-            thirdStageAddress.bank = mDB;
-            thirdStageAddress.offset = secondStageOffset;
+            uint16_t firstStageOffset = mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1));
+            Address firstStageAddress(0x00, firstStageOffset);
+            uint16_t secondStageOffset = mMemoryMapper.readTwoBytes(firstStageAddress);
+            Address thirdStageAddress(mDB, secondStageOffset);
             // TODO: figure out when to wrap around and when not to, it should not matter in this case
             // but it matters when fetching data
-            Address finalAddress = MemoryMapper::sumOffsetToAddressNoWrapAround(thirdStageAddress, indexWithYRegister());
-            return mMemoryMapper.offsetsAreOnDifferentPages(thirdStageAddress.offset, finalAddress.offset);
+            Address finalAddress = Address::sumOffsetToAddress(thirdStageAddress, indexWithYRegister());
+            return Address::offsetsAreOnDifferentPages(thirdStageAddress.getOffset(), finalAddress.getOffset());
         }
         default:
         {
@@ -52,10 +43,8 @@ bool Cpu::opCodeAddressingCrossesPageBoundary(OpCode &opCode) {
 }
 
 Address Cpu::getAddressOfOpCodeData(OpCode &opCode) {
-    Address onePlusOpCodeAddress;
-    onePlusOpCodeAddress.bank = mProgramAddress.bank;
-    onePlusOpCodeAddress.offset = mProgramAddress.offset + 1;
-    Address dataAddress;
+    uint8_t dataAddressBank;
+    uint16_t dataAddressOffset;
 
     switch(opCode.getAddressingMode()) {
         case Interrupt:
@@ -76,140 +65,139 @@ Address Cpu::getAddressOfOpCodeData(OpCode &opCode) {
         case ProgramCounterRelativeLong:
             // StackProgramCounterRelativeLong is only used by the PER OpCode, it has 16 bit operand
         case StackProgramCounterRelativeLong:
-            dataAddress = onePlusOpCodeAddress;
+            mProgramAddress.newWithOffset(1).getBankAndOffset(&dataAddressBank, &dataAddressOffset);
             break;
         case Absolute:
-            dataAddress.bank = mDB;
-            dataAddress.offset = mMemoryMapper.readTwoBytes(onePlusOpCodeAddress);
+            dataAddressBank = mDB;
+            dataAddressOffset = mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1));
             break;
         case AbsoluteProgram:
-            dataAddress.bank = mProgramAddress.bank;
-            dataAddress.offset = mMemoryMapper.readTwoBytes(onePlusOpCodeAddress);
+            dataAddressBank = mProgramAddress.getBank();
+            dataAddressOffset = mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1));
             break;
         case AbsoluteLong:
-            dataAddress = mMemoryMapper.readAddressAt(onePlusOpCodeAddress);
+            mMemoryMapper.readAddressAt(mProgramAddress.newWithOffset(1)).getBankAndOffset(&dataAddressBank, &dataAddressOffset);
             break;
         case AbsoluteIndirect:
-            dataAddress.bank = mProgramAddress.bank;
-            dataAddress.offset = mMemoryMapper.readTwoBytes(0x00, mMemoryMapper.readTwoBytes(onePlusOpCodeAddress));
+        {
+            dataAddressBank = mProgramAddress.getBank();
+            Address addressOfOffset(0x00, mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1)));
+            dataAddressOffset = mMemoryMapper.readTwoBytes(addressOfOffset);
+        }
             break;
         case AbsoluteIndirectLong:
-            dataAddress = mMemoryMapper.readAddressAt(0x00, mMemoryMapper.readTwoBytes(onePlusOpCodeAddress));
+        {
+            Address addressOfEffectiveAddress(0x00, mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1)));
+            mMemoryMapper.readAddressAt(addressOfEffectiveAddress).getBankAndOffset(&dataAddressBank, &dataAddressOffset);
+        }
             break;
         case AbsoluteIndexedIndirect:
         {
-            dataAddress.bank = mProgramAddress.bank;
-            uint16_t operandOffset = mMemoryMapper.readTwoBytes(onePlusOpCodeAddress);
-            operandOffset += indexWithXRegister();
-            dataAddress.offset = mMemoryMapper.readTwoBytes(mProgramAddress.bank, operandOffset);
+            Address firstStageAddress(mProgramAddress.getBank(), mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1)));
+            Address secondStageAddress = firstStageAddress.newWithOffsetNoWrapAround(indexWithXRegister());
+            dataAddressBank = mProgramAddress.getBank();
+            dataAddressOffset = mMemoryMapper.readTwoBytes(secondStageAddress);
         }
             break;
         case AbsoluteIndexedWithX:
         {
-            Address firstStageAddress;
-            firstStageAddress.bank = mDB;
-            firstStageAddress.offset = mMemoryMapper.readTwoBytes(onePlusOpCodeAddress);
-            dataAddress = MemoryMapper::sumOffsetToAddressNoWrapAround(firstStageAddress, indexWithXRegister());
+            Address firstStageAddress(mDB, mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1)));
+            Address::sumOffsetToAddressNoWrapAround(firstStageAddress, indexWithXRegister())
+                .getBankAndOffset(&dataAddressBank, &dataAddressOffset);;
         }
             break;
         case AbsoluteLongIndexedWithX:
         {
-            Address firstStageAddress = mMemoryMapper.readAddressAt(onePlusOpCodeAddress);
-            dataAddress = MemoryMapper::sumOffsetToAddressNoWrapAround(firstStageAddress, indexWithXRegister());
+            Address firstStageAddress = mMemoryMapper.readAddressAt(mProgramAddress.newWithOffset(1));
+            Address::sumOffsetToAddressNoWrapAround(firstStageAddress, indexWithXRegister())
+                .getBankAndOffset(&dataAddressBank, &dataAddressOffset);;
         }
             break;
         case AbsoluteIndexedWithY:
         {
-            Address firstStageAddress;
-            firstStageAddress.bank = mDB;
-            firstStageAddress.offset = mMemoryMapper.readTwoBytes(onePlusOpCodeAddress);
-            dataAddress = MemoryMapper::sumOffsetToAddressNoWrapAround(firstStageAddress, indexWithYRegister());
+            Address firstStageAddress(mDB, mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1)));
+            Address::sumOffsetToAddressNoWrapAround(firstStageAddress, indexWithYRegister())
+                .getBankAndOffset(&dataAddressBank, &dataAddressOffset);;
         }
             break;
         case DirectPage:
         {
-            dataAddress.bank = 0x00;
-            dataAddress.offset = mD + mMemoryMapper.readByte(onePlusOpCodeAddress);
+            dataAddressBank = 0x00;
+            dataAddressOffset = mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1));
         }
             break;
         case DirectPageIndexedWithX:
         {
-            dataAddress.bank = 0x00;
-            dataAddress.offset = mD + indexWithXRegister() + mMemoryMapper.readByte(onePlusOpCodeAddress);
+            dataAddressBank = 0x00;
+            dataAddressOffset = mD + indexWithXRegister() + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1));
         }
             break;
         case DirectPageIndexedWithY:
         {
-            dataAddress.bank = 0x00;
-            dataAddress.offset = mD + indexWithYRegister() + mMemoryMapper.readByte(onePlusOpCodeAddress);
+            dataAddressBank = 0x00;
+            dataAddressOffset = mD + indexWithYRegister() + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1));
         }
             break;
         case DirectPageIndirect:
         {
-            Address firstStageAddress;
-            firstStageAddress.bank = 0x00;
-            firstStageAddress.offset = mD + mMemoryMapper.readByte(onePlusOpCodeAddress);
-            dataAddress.bank = mDB;
-            dataAddress.offset = mMemoryMapper.readTwoBytes(firstStageAddress);
+            Address firstStageAddress(0x00, mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1)));
+            dataAddressBank = mDB;
+            dataAddressOffset = mMemoryMapper.readTwoBytes(firstStageAddress);
         }
             break;
         case DirectPageIndirectLong:
         {
-            Address firstStageAddress;
-            firstStageAddress.bank = 0x00;
-            firstStageAddress.offset = mD + mMemoryMapper.readByte(onePlusOpCodeAddress);
-            dataAddress = mMemoryMapper.readAddressAt(firstStageAddress);
+            Address firstStageAddress(0x00, mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1)));
+            mMemoryMapper.readAddressAt(firstStageAddress)
+                .getBankAndOffset(&dataAddressBank, &dataAddressOffset);;
         }
             break;
         case DirectPageIndexedIndirectWithX:
         {
-            Address firstStageAddress;
-            firstStageAddress.bank = 0x00;
-            firstStageAddress.offset = mD + mMemoryMapper.readByte(onePlusOpCodeAddress) + indexWithXRegister();
-            dataAddress.bank = mDB;
-            dataAddress.offset = mMemoryMapper.readTwoBytes(firstStageAddress);
+            Address firstStageAddress(0x00, mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1)) + indexWithXRegister());
+            dataAddressBank = mDB;
+            dataAddressOffset = mMemoryMapper.readTwoBytes(firstStageAddress);
         }
             break;
         case DirectPageIndirectIndexedWithY:
         {
-            uint16_t firstStageOffset = mD + mMemoryMapper.readByte(onePlusOpCodeAddress);
-            uint16_t secondStageOffset = mMemoryMapper.readTwoBytes(0x00, firstStageOffset);
-            Address thirdStageAddress;
-            thirdStageAddress.bank = mDB;
-            thirdStageAddress.offset = secondStageOffset;
-            dataAddress = MemoryMapper::sumOffsetToAddressNoWrapAround(thirdStageAddress, indexWithXRegister());
+            Address firstStageAddress(0x00, mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1)));
+            uint16_t secondStageOffset = mMemoryMapper.readTwoBytes(firstStageAddress);
+            Address thirdStageAddress(mDB, secondStageOffset);
+            Address::sumOffsetToAddressNoWrapAround(thirdStageAddress, indexWithYRegister())
+                .getBankAndOffset(&dataAddressBank, &dataAddressOffset);
         }
             break;
         case DirectPageIndirectLongIndexedWithY:
         {
-            uint16_t firstStageOffset = mD + mMemoryMapper.readByte(onePlusOpCodeAddress);
-            Address secondStageAddress = mMemoryMapper.readAddressAt(0x00, firstStageOffset);
-            dataAddress = MemoryMapper::sumOffsetToAddressNoWrapAround(secondStageAddress, indexWithYRegister());
+            Address firstStageAddress(0x00, mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1)));
+            Address secondStageAddress = mMemoryMapper.readAddressAt(firstStageAddress);
+            Address::sumOffsetToAddressNoWrapAround(secondStageAddress, indexWithYRegister())
+                .getBankAndOffset(&dataAddressBank, &dataAddressOffset);
         }
             break;
         case StackRelative:
         {
-            dataAddress.bank = 0x00;
-            dataAddress.offset = mStack.getStackPointer() + mMemoryMapper.readByte(onePlusOpCodeAddress);
+            dataAddressBank = 0x00;
+            dataAddressOffset = mStack.getStackPointer() + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1));
         }
             break;
         case StackDirectPageIndirect:
         {
-            dataAddress.bank = 0x00;
-            dataAddress.offset = mD + mMemoryMapper.readByte(onePlusOpCodeAddress);
+            dataAddressBank = 0x00;
+            dataAddressOffset = mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1));
         }
             break;
         case StackRelativeIndirectIndexedWithY:
         {
-            uint16_t firstStageOffset = mStack.getStackPointer() + mMemoryMapper.readByte(onePlusOpCodeAddress);
-            uint16_t secondStageOffset = mMemoryMapper.readTwoBytes(0x00, firstStageOffset);
-            Address thirdStageAddress;
-            thirdStageAddress.bank = mDB;
-            thirdStageAddress.offset = secondStageOffset;
-            dataAddress = MemoryMapper::sumOffsetToAddressNoWrapAround(thirdStageAddress, indexWithYRegister());
+            Address firstStageAddress(0x00, mStack.getStackPointer() + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1)));
+            uint16_t secondStageOffset = mMemoryMapper.readTwoBytes(firstStageAddress);
+            Address thirdStageAddress(mDB, secondStageOffset);
+            Address::sumOffsetToAddressNoWrapAround(thirdStageAddress, indexWithYRegister())
+                .getBankAndOffset(&dataAddressBank, &dataAddressOffset);
         }
             break;
     }
 
-    return dataAddress;
+    return Address(dataAddressBank, dataAddressOffset);
 }

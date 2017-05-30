@@ -28,7 +28,7 @@ void Cpu::executeStack(OpCode &opCode) {
         {
             int opCodeSize = 3;
             uint16_t operand = mMemoryMapper.readTwoBytes(opCodeDataAddress);
-            uint16_t sum = operand + opCodeSize + mProgramAddress.offset;
+            uint16_t sum = operand + opCodeSize + mProgramAddress.getOffset();
             mStack.push16Bit(sum);
             addToProgramAddressAndCycles(3, 6);
             break;
@@ -58,7 +58,7 @@ void Cpu::executeStack(OpCode &opCode) {
         }
         case(0x4B):                 // PHK
         {
-            mStack.push8Bit(mProgramAddress.bank);
+            mStack.push8Bit(mProgramAddress.getBank());
             addToProgramAddressAndCycles(1, 3);
             break;
         }

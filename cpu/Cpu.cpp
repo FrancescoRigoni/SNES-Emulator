@@ -9,7 +9,8 @@ Cpu::Cpu(MemoryMapper &memoryMapper, EmulationModeInterrupts *emulationInterrupt
             mMemoryMapper(memoryMapper),
             mEmulationInterrupts(emulationInterrupts),
             mNativeInterrupts(nativeInterrupts),
-            mStack(&mMemoryMapper) {
+            mStack(&mMemoryMapper),
+            mProgramAddress(0x00, emulationInterrupts->reset) {
 
     initCpu();
     logCpuStatus();
@@ -37,9 +38,6 @@ void Cpu::initCpu() {
 
     // Start in emulation mode
     mCpuStatus.setEmulationFlag();
-    // Start executing the RST interrupt
-    mProgramAddress.bank = 0;
-    mProgramAddress.offset = mEmulationInterrupts->reset;
 }
 
 void Cpu::setBreakPoint(uint8_t bank, uint16_t offset) {
@@ -73,12 +71,12 @@ void Cpu::subtractFromCycles(int cycles) {
 }
 
 void Cpu::addToProgramAddress(int bytes) {
-    mProgramAddress.offset += bytes;
+    mProgramAddress.incrementBy(bytes);
 }
 
 void Cpu::addToProgramAddressAndCycles(int bytes, int cycles) {
-    mTotalCyclesCounter += cycles;
-    mProgramAddress.offset += bytes;
+    addToCycles(cycles);
+    addToProgramAddress(bytes);
 }
 
 uint16_t Cpu::indexWithXRegister() {
@@ -89,19 +87,14 @@ uint16_t Cpu::indexWithYRegister() {
     return indexIs8BitWide() ? Binary::lower8BitsOf(mY) : mY;
 }
 
-void Cpu::setProgramAddress(uint8_t bank, uint16_t offset) {
-    mProgramAddress.bank = bank;
-    mProgramAddress.offset = offset;
-}
-
-void Cpu::setProgramAddress(Address &address) {
-    setProgramAddress(address.bank, address.offset);
+void Cpu::setProgramAddress(const Address &address) {
+    mProgramAddress = address;
 }
 
 void Cpu::logCpuStatus() {
     Log::trc(LOG_TAG).str("====== CPU status start ======").show();
     Log::trc(LOG_TAG).str("A: ").hex(mA, 4).sp().str("X: ").hex(mX, 4).sp().str("Y: ").hex(mY, 4).show();
-    Log::trc(LOG_TAG).str("PB: ").hex(mProgramAddress.bank, 2).sp().str("PC: ").hex(mProgramAddress.offset, 4).show();
+    Log::trc(LOG_TAG).str("PB: ").hex(mProgramAddress.getBank(), 2).sp().str("PC: ").hex(mProgramAddress.getOffset(), 4).show();
     Log::trc(LOG_TAG).str("DB: ").hex(mDB, 2).sp().str("D: ").hex(mD, 4).show();
     Log::trc(LOG_TAG).str("S (Stack pointer): ").hex(mStack.getStackPointer(), 4).show();
     Log::trc(LOG_TAG).str("P (Status): ").hex(mCpuStatus.getRegisterValue(), 2).show();

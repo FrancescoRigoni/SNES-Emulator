@@ -4,14 +4,12 @@
 #define LOG_TAG "Trace"
 
 void Cpu::trace(OpCode &opCode) {
-    Address onePlusOpCodeAddress;
-    onePlusOpCodeAddress.bank = mProgramAddress.bank;
-    onePlusOpCodeAddress.offset = mProgramAddress.offset + 1;
-    
+    Address onePlusOpCodeAddress = mProgramAddress.newWithOffset(1);
+
     Log &log = Log::trc(LOG_TAG);
-    log.hex(mProgramAddress.bank, 2).str(":").hex(mProgramAddress.offset, 4);
+    log.hex(mProgramAddress.getBank(), 2).str(":").hex(mProgramAddress.getOffset(), 4);
     log.str(" | ").hex(opCode.getCode(), 2).sp().str(opCode.getName()).sp();
-    
+
     switch(opCode.getAddressingMode()) {
         case Interrupt:
         case Accumulator:
@@ -21,17 +19,17 @@ void Cpu::trace(OpCode &opCode) {
             log.str("#").hex(mMemoryMapper.readByte(getAddressOfOpCodeData(opCode)), 2);
             break;
         case AbsoluteProgram:
-            log.hex(getAddressOfOpCodeData(opCode).offset, 4).sp();
+            log.hex(getAddressOfOpCodeData(opCode).getOffset(), 4).sp();
             log.str("                    [Absolute (Program)]");
             break;
         case Absolute:
-            log.hex(getAddressOfOpCodeData(opCode).offset, 4).sp();
+            log.hex(getAddressOfOpCodeData(opCode).getOffset(), 4).sp();
             log.str("                    [Absolute]");
             break;
         case AbsoluteLong:
         {
             Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
-            log.hex(opCodeDataAddress.bank, 2).str(":").hex(opCodeDataAddress.offset, 4).sp();
+            log.hex(opCodeDataAddress.getBank(), 2).str(":").hex(opCodeDataAddress.getOffset(), 4).sp();
             log.str("                [Absolute Long]");
         }
             break;
@@ -49,7 +47,7 @@ void Cpu::trace(OpCode &opCode) {
         {
             Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
             Address effectiveAddress = mMemoryMapper.readAddressAt(opCodeDataAddress);
-            log.hex(effectiveAddress.bank, 2).str(":").hex(effectiveAddress.offset, 4).str(", X").sp();
+            log.hex(effectiveAddress.getBank(), 2).str(":").hex(effectiveAddress.getOffset(), 4).str(", X").sp();
             log.str("                    [Absolute Long Indexed, X]");
         }
             break;
@@ -103,7 +101,7 @@ void Cpu::trace(OpCode &opCode) {
         case StackProgramCounterRelativeLong:
             break;
         case StackRelativeIndirectIndexedWithY:
-            log.str("(").hex(mMemoryMapper.readByte(MemoryMapper::sumOffsetToAddressWrapAround(mProgramAddress, 1)), 2);
+            log.str("(").hex(mMemoryMapper.readByte(Address::sumOffsetToAddressWrapAround(mProgramAddress, 1)), 2);
             log.str(", S), Y").sp();
             log.str("                    [Absolute Indexed, X]");
             break;
@@ -116,6 +114,6 @@ void Cpu::trace(OpCode &opCode) {
         case BlockMove:
             break;
     }
-    
+
     log.show();
 }

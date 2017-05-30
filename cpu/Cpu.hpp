@@ -78,8 +78,7 @@ class Cpu {
 
         void trace(OpCode &);
 
-        void setProgramAddress(uint8_t, uint16_t);
-        void setProgramAddress(Address &);
+        void setProgramAddress(const Address &);
         void addToCycles(int);
         void subtractFromCycles(int);
         void addToProgramAddress(int);

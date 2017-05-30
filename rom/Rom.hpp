@@ -12,10 +12,10 @@
 
 #define ROM_NAME_LENGTH_BYTES                   21
 
-typedef enum {
+enum class RomType {
     HI_ROM,
     LO_ROM
-} RomType;
+};
 
 typedef struct {
     char romName[ROM_NAME_LENGTH_BYTES];

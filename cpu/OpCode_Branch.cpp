@@ -22,23 +22,24 @@ int Cpu::executeBranchShortOnCondition(bool condition, OpCode &opCode) {
         } else {
             destination16 = destination;
         }
-        actualDestination = mProgramAddress.offset + 2 + destination16;
+        actualDestination = mProgramAddress.getOffset() + 2 + destination16;
         // Emulation mode requires 1 extra cycle on page boundary crossing
-        if (MemoryMapper::offsetsAreOnDifferentPages(mProgramAddress.offset, actualDestination) &&
+        if (Address::offsetsAreOnDifferentPages(mProgramAddress.getOffset(), actualDestination) &&
             mCpuStatus.emulationFlag()) {
             opCycles++;
         }
     } else {
-        actualDestination = mProgramAddress.offset + 2;
+        actualDestination = mProgramAddress.getOffset() + 2;
     }
-    mProgramAddress.offset = actualDestination;
+    Address newProgramAddress(mProgramAddress.getBank(), actualDestination);
+    mProgramAddress = newProgramAddress;
     return opCycles;
 }
 
 int Cpu::executeBranchLongOnCondition(bool condition, OpCode &opCode) {
     if (condition) {
         uint16_t destination = mMemoryMapper.readTwoBytes(getAddressOfOpCodeData(opCode));
-        mProgramAddress.offset += 3 + destination;
+        mProgramAddress.incrementBy(3 + destination);
     }
     // CPU cycles: 4
     return 4;

@@ -3,6 +3,7 @@
 #include "Cartridge.hpp"
 #include "Rom.hpp"
 #include "MemoryMapper.hpp"
+#include "Ram.hpp"
 #include "Log.hpp"
 
 #include <stdio.h>
@@ -39,9 +40,13 @@ int main(int argc, char **argv) {
 
 	disable_waiting_for_enter();
 
-    Cartridge cartridgeReader = Cartridge(std::string(argv[1]));
+	// Initialize memory mapper
+	MemoryMapper memoryMapper = MemoryMapper();
 
-    if (cartridgeReader.getRomType() == LO_ROM) {
+	// Initialize cartridge
+    Cartridge cartridgeReader = Cartridge(std::string(argv[1]), memoryMapper);
+
+    if (cartridgeReader.getRomType() == RomType::LO_ROM) {
         InterruptTable::native = (NativeModeInterrupts *) (cartridgeReader.getRomData() + NATIVE_INTERRUPT_TABLE_LOROM);
         InterruptTable::emulation = (EmulationModeInterrupts *) cartridgeReader.getRomData() + EMULATED_INTERRUPT_TABLE_LOROM;
     } else {
@@ -49,9 +54,10 @@ int main(int argc, char **argv) {
         InterruptTable::emulation = (EmulationModeInterrupts *) (cartridgeReader.getRomData() + EMULATED_INTERRUPT_TABLE_HIROM);
     }
 
-    MemoryMapper memoryMapper = MemoryMapper();
-    memoryMapper.registerDevice(&cartridgeReader);
+    // Initialize RAM
+    Ram ram(memoryMapper);
 
+    // Initialize cpu
     Cpu cpu(memoryMapper, InterruptTable::emulation, InterruptTable::native);
 
     cpu.setBreakPoint(0x00, 0x8023);
