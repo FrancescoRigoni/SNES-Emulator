@@ -1,4 +1,7 @@
 
+#ifndef __CARTRIDGE__
+#define __CARTRIDGE__
+
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -6,14 +9,10 @@
 #include <stdint.h>
 
 #include "Rom.hpp"
+#include "Device.hpp"
 #include "utils.hpp"
 
-#ifndef __CARTRIDGE__
-#define __CARTRIDGE__
-
-#define BANK_SIZE_BYTES 0x10000
-
-class Cartridge {
+class Cartridge : public Device {
     public:
         Cartridge(const std::string &);
         ~Cartridge();
@@ -21,14 +20,21 @@ class Cartridge {
         RomType getRomType();
         uint8_t *getRomData();
 
-        uint8_t fetchByte(uint8_t , uint16_t);
-        uint16_t fetchWord(uint8_t , uint16_t);
-        uint32_t fetchDWord(uint8_t , uint16_t);
+        // Methods inherited from Device
+        void storeByte(Address&, uint8_t);
+        void storeTwoBytes(Address&, uint16_t);
+        uint8_t readByte(Address);
+        uint16_t readTwoBytes(Address);
+        Address readAddressAt(Address);
+        bool decodeAddress(Address, Address*);
+        // End of methods inherited from Device
+
     private:
+
         uint32_t mRomSizeBytes;
+        // TODO rom type should not be here
         RomType mRomType;
         Header *mHeader;
-
         uint8_t *mRomData;
 
         bool readROM(const std::string &);

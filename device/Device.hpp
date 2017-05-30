@@ -1,6 +1,9 @@
 #ifndef DEVICE_H
 #define DEVICE_H
 
+#define BANK_SIZE_BYTES                0x10000
+#define PAGE_SIZE_BYTES                    256
+
 #define offsetIsInBankLow(offset) (offset < 0x8000)
 #define offsetIsInBankHigh(offset) (offset >= 0x8000)
 
@@ -52,9 +55,9 @@ class Device {
         virtual Address readAddressAt(Address) = 0;
 
         /**
-          Returns true if this mapping can be used for the specified virtual address.
+          Returns true if the address was decoded successfully by this device.
          */
-        virtual bool maps(Address &) = 0;
+        virtual bool decodeAddress(Address, Address*);
 };
 
 #endif // DEVICE_H

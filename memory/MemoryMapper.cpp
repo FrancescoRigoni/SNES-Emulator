@@ -5,14 +5,7 @@
 
 #define LOG_TAG "MemoryMapper"
 
-bool MemoryMapper::maps(Address &virtualAddress) {
-    // MemoryMapper maps all addresses by definition
-    return true;
-}
-
-MemoryMapper::MemoryMapper(Cartridge *romReader) :
-    mRomReader(romReader) {
-
+MemoryMapper::MemoryMapper() {
     mLowRam = new uint8_t[LOWRAM_SIZE];
     mPpuApuRegs = new uint8_t[PPU_APU_REGS_SIZE];
     mDspSuperFxRegs = new uint8_t[DSP_SUPERFX_REGS_SIZE];
@@ -33,6 +26,10 @@ MemoryMapper::~MemoryMapper() {
     if (mCartridgeSRam) delete[] mCartridgeSRam;
     if (mHighRam) delete[] mHighRam;
     if (mExpandedRam) delete[] mExpandedRam;
+}
+
+void MemoryMapper::registerDevice(Device *device) {
+    mDevices.push_back(device);
 }
 
 Address MemoryMapper::sumOffsetToAddressNoWrapAround(Address &address, uint16_t offset) {
@@ -105,6 +102,13 @@ Address MemoryMapper::readAddressAt(uint8_t bank, uint16_t offset) {
 }
 
 uint8_t MemoryMapper::readByte(Address address) {
+    for (int i = 0; i < mDevices.size(); i++) {
+        Device *device = mDevices[i];
+        if (device->maps(address)) {
+            return device->readByte(address);
+        }
+    }
+
     uint8_t decodedBank;
     uint16_t decodedOffset;
     uint8_t *memory = decodeMemoryAddress(address.bank, address.offset, &decodedBank, &decodedOffset);
@@ -113,6 +117,13 @@ uint8_t MemoryMapper::readByte(Address address) {
 }
 
 uint16_t MemoryMapper::readTwoBytes(Address address) {
+    for (int i = 0; i < mDevices.size(); i++) {
+        Device *device = mDevices[i];
+        if (device->maps(address)) {
+            return device->readTwoBytes(address);
+        }
+    }
+
     uint8_t decodedBank;
     uint16_t decodedOffset;
     uint8_t *memory = decodeMemoryAddress(address.bank, address.offset, &decodedBank, &decodedOffset);
@@ -124,13 +135,18 @@ uint16_t MemoryMapper::readTwoBytes(Address address) {
 }
 
 Address MemoryMapper::readAddressAt(Address address) {
+    for (int i = 0; i < mDevices.size(); i++) {
+        Device *device = mDevices[i];
+        if (device->maps(address)) {
+            return device->readAddressAt(address);
+        }
+    }
+
     Address addressRead;
     addressRead.bank = readByte(address.bank, address.offset+2);
     addressRead.offset = readTwoBytes(address);
     return addressRead;
 }
-
-
 
 void logDecodedAddress(const char *type, uint8_t bank, uint16_t offset, uint8_t decodedBank, uint16_t decodedOffset) {
     /*Log &log = Log::dbg(LOG_TAG);
@@ -139,8 +155,7 @@ void logDecodedAddress(const char *type, uint8_t bank, uint16_t offset, uint8_t 
     log.show();*/
 }
 
-uint8_t *MemoryMapper::decodeMemoryAddress(uint8_t bank, uint16_t offset, uint8_t *decodedBank, uint16_t *decodedOffset) {
-
+bool MemoryMapper::decodeAddress(Address, Address*);
     if ((bankInRange(bank, 0x00, 0x3F) || bankInRange(bank, 0x80, 0xBF) || bankIs(bank, 0x7E)) &&
          offsetInRange(offset, 0x0000, 0x1FFF)) {
 
@@ -231,109 +246,13 @@ uint8_t *MemoryMapper::decodeMemoryAddress(uint8_t bank, uint16_t offset, uint8_
 
     } else {
 
-        *decodedBank = 0;
+        /**decodedBank = 0;
         *decodedOffset = 0;
         decodeRomAddress(bank, offset, decodedBank, decodedOffset);
 
         logDecodedAddress("ROM", bank, offset, *decodedBank, *decodedOffset);
         return mRomReader->getRomData();
-    }
-}
-
-void MemoryMapper::decodeRomAddress(uint8_t bank, uint16_t offset, uint8_t *decodedBank, uint16_t *decodedOffset) {
-
-    if (mRomReader->getRomType() == LO_ROM) {
-        // Mapping #0
-        if (bankInRange(bank, 0x00, 0x3F) && offsetIsInBankHigh(offset)) {
-            *decodedBank = std::floor(bank / 2);
-            if (bankIsEven(bank)) *decodedOffset = offsetToBankLow(offset);
-            else *decodedOffset = offset;
-        } else if (bankInRange(bank, 0x80, 0xBF) && offsetIsInBankHigh(offset)) {
-            bank -= 0x80;
-            *decodedBank = std::floor(bank / 2);
-            if (bankIsEven(bank)) *decodedOffset = offsetToBankLow(offset);
-            else *decodedOffset = offset;
-        }
-        // Mapping #1
-        else if (bankInRange(bank, 0x40, 0x6F) && offsetIsInBankLow(offset)) {
-            *decodedBank = std::floor(bank / 2);
-            if (bankIsEven(bank)) *decodedOffset = offset;
-            else *decodedOffset = offsetToBankHigh(offset);
-        }
-        // Mapping #2
-        else if (bankInRange(bank, 0x40, 0x6F) && offsetIsInBankHigh(offset)) {
-            *decodedBank = std::floor(bank / 2);
-            if (bankIsEven(bank)) *decodedOffset = offsetToBankLow(offset);
-            else *decodedOffset = offset;
-        } else if (bankInRange(bank, 0xC0, 0xEF) && offsetIsInBankHigh(offset)) {
-            bank -= 0x80;
-            *decodedBank = std::floor(bank / 2);
-            if (bankIsEven(bank)) *decodedOffset = offsetToBankLow(offset);
-            else *decodedOffset = offset;
-        }
-        // Mapping #3
-        else if (bankInRange(bank, 0x70, 0x7D) && offsetIsInBankHigh(offset)) {
-            *decodedBank = std::floor(bank / 2);
-            if (bankIsEven(bank)) *decodedOffset = offsetToBankLow(offset);
-            else *decodedOffset = offset;
-        } else if (bankInRange(bank, 0xF0, 0xFD) && offsetIsInBankHigh(offset)) {
-            bank -= 0x80;
-            *decodedBank = std::floor(bank / 2);
-            if (bankIsEven(bank)) *decodedOffset = offsetToBankLow(offset);
-            else *decodedOffset = offset;
-        }
-        // Mapping #4
-        else if (bank == 0xFE && offsetIsInBankHigh(offset)) {
-            *decodedBank = 0x3F;
-            *decodedOffset = offsetToBankLow(offset);
-        } else if (bank == 0xFF && offsetIsInBankHigh(offset)) {
-            *decodedBank = 0x3F;
-            *decodedOffset = offset;
-        }
-    } else if (mRomReader->getRomType() == HI_ROM) {
-        // Mapping #0
-        if ((bank >= 0x00 && bank <= 0x1F) && offsetIsInBankHigh(offset)) {
-            *decodedBank = bank;
-            *decodedOffset = offset;
-        } else if (bankInRange(bank, 0x80, 0x9F) && offsetIsInBankHigh(offset)) {
-            bank -= 0x80;
-            *decodedBank = bank;
-            *decodedOffset = offset;
-        }
-        // Mapping #1
-        if (bankInRange(bank, 0x20, 0x3F) && offsetIsInBankHigh(offset)) {
-            *decodedBank = bank;
-            *decodedOffset = offset;
-        } else if (bankInRange(bank, 0xA0, 0xBF) && offsetIsInBankHigh(offset)) {
-            bank -= 0x80;
-            *decodedBank = bank;
-            *decodedOffset = offset;
-        }
-        // Mapping #2
-        if (bankInRange(bank, 0x40, 0x7D)) {
-            bank -= 0x40;
-            *decodedBank = bank;
-            *decodedOffset = offset;
-        } else if (bankInRange(bank, 0xC0, 0xFD)) {
-            bank -= 0xC0;
-            *decodedBank = bank;
-            *decodedOffset = offset;
-        }
-        // Mapping #3
-        if (bankInRange(bank, 0x70, 0x7D) && offsetIsInBankHigh(offset)) {
-            *decodedBank = std::floor(bank / 2);
-            if (bankIsEven(bank)) *decodedOffset = offsetToBankLow(offset);
-            else *decodedOffset = offset;
-        }
-        // Mapping #4
-        else if (bank == 0xFE) {
-            *decodedBank = 0x3E;
-            *decodedOffset = offset;
-        } else if (bank == 0xFF) {
-            *decodedBank = 0x3F;
-            *decodedOffset = offset;
-        }
-    } else {
-        Log::err(LOG_TAG).str("Error: unknown rom type, not HiRom nor LoRom").show();
+        */
+        return 0;
     }
 }

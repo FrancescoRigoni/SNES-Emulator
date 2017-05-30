@@ -49,7 +49,9 @@ int main(int argc, char **argv) {
         InterruptTable::emulation = (EmulationModeInterrupts *) (cartridgeReader.getRomData() + EMULATED_INTERRUPT_TABLE_HIROM);
     }
 
-    MemoryMapper memoryMapper = MemoryMapper(&cartridgeReader);
+    MemoryMapper memoryMapper = MemoryMapper();
+    memoryMapper.registerDevice(&cartridgeReader);
+
     Cpu cpu(memoryMapper, InterruptTable::emulation, InterruptTable::native);
 
     cpu.setBreakPoint(0x00, 0x8023);

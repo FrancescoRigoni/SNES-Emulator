@@ -17,13 +17,12 @@
 #define HIGH_RAM_SIZE                   0x6000
 #define EXPANDED_RAM_SIZE              0x18000
 
-#define BANK_SIZE_BYTES                0x10000
-#define PAGE_SIZE_BYTES                    256
-
 class MemoryMapper : public Device {
     public:
-        MemoryMapper(Cartridge *);
+        MemoryMapper();
         ~MemoryMapper();
+
+        void registerDevice(Device *);
 
         // Methods inherited from Device
         void storeByte(Address&, uint8_t);
@@ -31,25 +30,21 @@ class MemoryMapper : public Device {
         uint8_t readByte(Address);
         uint16_t readTwoBytes(Address);
         Address readAddressAt(Address);
-        bool maps(Address &);
+        bool decodeAddress(Address, Address*);
         // End of methods inherited from Device
 
         uint8_t readByte(uint8_t, uint16_t);
         uint16_t readTwoBytes(uint8_t, uint16_t);
         Address readAddressAt(uint8_t, uint16_t);
 
+        // Helper methods
         static bool offsetsAreOnDifferentPages(uint16_t, uint16_t);
         static Address sumOffsetToAddressNoWrapAround(Address &, uint16_t);
         static Address sumOffsetToAddressWrapAround(Address &, uint16_t);
 
     private:
-        uint8_t *decodeMemoryAddress(uint8_t, uint16_t, uint8_t *, uint16_t *);
-        void decodeRomAddress(uint8_t, uint16_t, uint8_t *, uint16_t *);
 
-        //std::vector<Device> mDevices;
-
-        // TODO remove and use external mappings
-        Cartridge *mRomReader;
+        std::vector<Device *> mDevices;
 
         uint8_t *mLowRam;
         uint8_t *mPpuApuRegs;
