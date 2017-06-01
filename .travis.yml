@@ -12,6 +12,7 @@ addons:
             - ubuntu-toolchain-r-test
         packages:
             - lcov
+            - libboost-test-dev
 
 branches:
   only:
@@ -30,7 +31,7 @@ after_success:
 
 notifications:
   email:
-    - kosrok97@gmail.com
+    - francesco.rigoni@gmail.com
 
 env:
   global:
