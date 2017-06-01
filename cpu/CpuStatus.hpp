@@ -24,7 +24,7 @@ class CpuStatus {
         void setAccumulatorWidthFlag();
         void clearAccumulatorWidthFlag();
         bool accumulatorWidthFlag();
-    
+
         void setIndexWidthFlag();
         void clearIndexWidthFlag();
         bool indexWidthFlag();

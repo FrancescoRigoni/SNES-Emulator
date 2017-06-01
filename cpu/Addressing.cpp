@@ -53,7 +53,6 @@ Address Cpu65816::getAddressOfOpCodeData(OpCode &opCode) {
         case StackImplied:
             // Not really used, doesn't make any sense since these opcodes do not have operands
             return mProgramAddress;
-            break;
         case Immediate:
         case BlockMove:
             // Blockmove OpCodes have two bytes following them directly
