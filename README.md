@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/FrancescoRigoni/SNES-Emulator.svg?branch=master)](https://travis-ci.org/FrancescoRigoni/SNES-Emulator)
+
 # SNES-Emulator
 ## What is this
 
