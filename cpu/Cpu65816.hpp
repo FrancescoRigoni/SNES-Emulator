@@ -25,17 +25,19 @@ class Cpu65816 {
         // Temporary
         bool executeNext();
         // Deprecated
-        bool useDeprecatedExecutor(OpCode &opCode);
+        bool useDeprecatedExecutor(OpCode &);
 
         // Debug stuff
         // TODO: Move away
         void logCpuStatus();
-        bool mBreakpointEnabled;
+        bool mBreakpointEnabled = false;
         uint8_t mBreakBank;
         uint16_t mBreakOffset;
 
         void debug_setZeroFlag();
-        void setBreakPoint(uint8_t bank, uint16_t offset);
+        void setBreakPoint(uint8_t, uint16_t);
+
+        void trace(OpCode &);
         // End of debug stuff
 
     private:
@@ -63,9 +65,8 @@ class Cpu65816 {
         Address mProgramAddress {0x00, 0x0000};
 
         // Total number of cycles
-        uint64_t mTotalCyclesCounter;
+        uint64_t mTotalCyclesCounter = 0;
 
-        void initCpu();
         bool accumulatorIs8BitWide();
         bool accumulatorIs16BitWide();
         bool indexIs8BitWide();
@@ -76,8 +77,6 @@ class Cpu65816 {
 
         Address getAddressOfOpCodeData(OpCode &);
         bool opCodeAddressingCrossesPageBoundary(OpCode &);
-
-        void trace(OpCode &);
 
         void setProgramAddress(const Address &);
         void addToCycles(int);

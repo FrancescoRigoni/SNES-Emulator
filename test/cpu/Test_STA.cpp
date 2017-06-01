@@ -46,6 +46,23 @@ struct SuiteFixture {
 
 BOOST_FIXTURE_TEST_SUITE(SUITE_LDA_STA, SuiteFixture)
 
+    BOOST_AUTO_TEST_CASE(STA_ABSOLUTE_8)
+    {
+        const int instructionsCount = 5;
+        uint8_t instructions[] = {
+                0xA9, 0x00,                  // LDA #$00
+                0x48,                        // PHA (Push Accumulator)
+                0xAB,                        // PLB (Pull Data Bank)
+                0xA9, 0xA5,                  // LDA #$A5
+                0x8D, 0x00, 0x10,            // STA $1000
+        };
+        mockRam->copyDataBlock(instructions, RESET_INTERRUPT_ADDRESS, sizeof(instructions));
+
+        for (int i = 0; i < instructionsCount; i++) cpu->executeNext();
+
+        BOOST_CHECK(memoryMapper->readTwoBytes(Address(0x00, 0x1000)) == 0xA5);
+    }
+
     BOOST_AUTO_TEST_CASE(STA_ABSOLUTE_16)
     {
         const int instructionsCount = 7;

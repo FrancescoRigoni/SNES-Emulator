@@ -24,8 +24,7 @@ class CpuStatus {
         void setAccumulatorWidthFlag();
         void clearAccumulatorWidthFlag();
         bool accumulatorWidthFlag();
-        
-        
+    
         void setIndexWidthFlag();
         void clearIndexWidthFlag();
         bool indexWidthFlag();
@@ -57,14 +56,14 @@ class CpuStatus {
         void updateSignAndZeroFlagFrom16BitValue(uint16_t);
     
     private:
-        bool mZeroFlag;
-        bool mSignFlag;
-        bool mDecimalFlag;
-        bool mInterruptDisableFlag;
-        bool mAccumulatorWidthFlag;
-        bool mIndexWidthFlag;
-        bool mCarryFlag;
-        bool mEmulationFlag;
-        bool mOverflowFlag;
-        bool mBreakFlag;
+        bool mZeroFlag = false;
+        bool mSignFlag = false;
+        bool mDecimalFlag = false;
+        bool mInterruptDisableFlag = false;
+        bool mAccumulatorWidthFlag = false;
+        bool mIndexWidthFlag = false;
+        bool mCarryFlag = false;
+        bool mEmulationFlag = false;
+        bool mOverflowFlag = false;
+        bool mBreakFlag = false;
 };

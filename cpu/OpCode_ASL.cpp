@@ -83,7 +83,7 @@ void Cpu65816::executeASL(OpCode &opCode) {
                 addToCycles(2);
             }
 #ifdef EMU_65C02
-            if (!opCodeAddressingCrossesPageBoundary()) {
+            if (!opCodeAddressingCrossesPageBoundary(opCode)) {
                 subtractFromCycles(1);
             }
 #endif

@@ -38,14 +38,6 @@
 #define STATUS_SIGN                     0X80
 
 CpuStatus::CpuStatus() {
-    mZeroFlag = false;
-    mSignFlag = false;
-    mDecimalFlag = false;
-    mInterruptDisableFlag = false;
-    mAccumulatorWidthFlag = false;
-    mIndexWidthFlag = false;
-    mCarryFlag = false;
-    mEmulationFlag = false;
 }
 
 void CpuStatus::setZeroFlag() {

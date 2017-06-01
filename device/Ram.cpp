@@ -29,7 +29,9 @@ bool Ram::decodeAddress(const Address &virtualAddress, Address &decodedAddress) 
     uint16_t decodedOffset = 0x0000;
     bool decoded = false;
 
-    if ((bankInRange(bank, 0x00, 0x3F) || bankInRange(bank, 0x80, 0xBF) || bankIs(bank, 0x7E)) && offsetInRange(offset, 0x0000, 0x1FFF)) {
+    if ((bankInRange(bank, 0x00, 0x3F) ||
+         bankInRange(bank, 0x80, 0xBF) ||
+         bankIs(bank, 0x7E)) && offsetInRange(offset, 0x0000, 0x1FFF)) {
         // LowRAM
         decodedBank = 0x00;
         decodedOffset = offset;
