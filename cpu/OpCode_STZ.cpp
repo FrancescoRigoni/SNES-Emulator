@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Cpu::executeSTZ"
 
@@ -6,7 +6,7 @@
  * This file contains the implementation for all STZ OpCodes.
  */
 
-void Cpu::executeSTZ(OpCode &opCode) {
+void Cpu65816::executeSTZ(OpCode &opCode) {
     Address dataAddress = getAddressOfOpCodeData(opCode);
     if (accumulatorIs8BitWide()) {
         mMemoryMapper.storeByte(dataAddress, 0x00);

@@ -25,8 +25,8 @@ bool Ram::decodeAddress(const Address &virtualAddress, Address &decodedAddress) 
     uint8_t bank = virtualAddress.getBank();
     uint16_t offset = virtualAddress.getOffset();
 
-    uint8_t decodedBank;
-    uint16_t decodedOffset;
+    uint8_t decodedBank = 0x00;
+    uint16_t decodedOffset = 0x0000;
     bool decoded = false;
 
     if ((bankInRange(bank, 0x00, 0x3F) || bankInRange(bank, 0x80, 0xBF) || bankIs(bank, 0x7E)) && offsetInRange(offset, 0x0000, 0x1FFF)) {
@@ -37,17 +37,17 @@ bool Ram::decodeAddress(const Address &virtualAddress, Address &decodedAddress) 
     } else if (bankIs(bank, 0x75) && offsetInRange(offset, 0x2000, 0x7FFF)) {
         // HighRAM
         decodedBank = 0x00;
-        decodedOffset = offset - 0x2000;
+        decodedOffset = offset;
+        decoded = true;
+    } else if (bankIs(bank, 0x7E) && offsetInRange(offset, 0x8000, 0xFFFF)) {
+        // ExpandedRAM (First Half-Bank)
+        decodedBank = 0x00;
+        decodedOffset = HALF_BANK_SIZE_BYTES;
         decoded = true;
     } else if (bankIs(bank, 0x7F)) {
-        // ExpandedRAM
-        if (offsetIsInBankLow(offset)) {
-            decodedBank = 0x00;
-            decodedOffset = offset + 0x8000;
-        } else {
-            decodedBank = 0x01;
-            decodedOffset = offset - 0x8000;
-        }
+        // ExpandedRAM (Second Full-Bank)
+        decodedBank = 0x01;
+        decodedOffset = 0x0000;
         decoded = true;
     }
 

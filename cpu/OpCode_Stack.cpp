@@ -1,12 +1,12 @@
 
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Cpu::executeStack"
 
 /**
  * This file contains the implementation for every stack related OpCode.
  */
-void Cpu::executeStack(OpCode &opCode) {
+void Cpu65816::executeStack(OpCode &opCode) {
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
     switch (opCode.getCode()) {
         case 0xF4:                  // PEA

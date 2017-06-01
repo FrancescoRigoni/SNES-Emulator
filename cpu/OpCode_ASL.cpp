@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Cpu::executeASL"
 
@@ -22,7 +22,7 @@
  * This file contains implementations for all ASL OpCodes.
  */
 
-void Cpu::executeMemoryASL(OpCode &opCode) {
+void Cpu65816::executeMemoryASL(OpCode &opCode) {
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
 
     if(accumulatorIs8BitWide()) {
@@ -36,7 +36,7 @@ void Cpu::executeMemoryASL(OpCode &opCode) {
     }
 }
 
-void Cpu::executeAccumulatorASL(OpCode &opCode) {
+void Cpu65816::executeAccumulatorASL(OpCode &opCode) {
     if(accumulatorIs8BitWide()) {
         uint8_t value = Binary::lower8BitsOf(mA);
         DO_ASL_8_BIT(value);
@@ -46,7 +46,7 @@ void Cpu::executeAccumulatorASL(OpCode &opCode) {
     }
 }
 
-void Cpu::executeASL(OpCode &opCode) {
+void Cpu65816::executeASL(OpCode &opCode) {
     switch (opCode.getCode()) {
         case (0x0A):                // ASL Accumulator
         {

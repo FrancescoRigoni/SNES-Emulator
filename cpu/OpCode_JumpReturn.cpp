@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Cpu::executeJumpReturn"
 
@@ -7,7 +7,7 @@
  * that deal with jumps, calls and returns.
  */
 
-void Cpu::executeJumpReturn(OpCode &opCode) {
+void Cpu65816::executeJumpReturn(OpCode &opCode) {
     switch (opCode.getCode()) {
         case(0x6B):                 // RTL
         {

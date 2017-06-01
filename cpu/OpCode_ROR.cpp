@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Cpu::executeROR"
 
@@ -27,7 +27,7 @@
 /**
  * This file contains implementations for all ROR OpCodes.
  */
-void Cpu::executeMemoryROR(OpCode &opCode) {
+void Cpu65816::executeMemoryROR(OpCode &opCode) {
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
 
     if(accumulatorIs8BitWide()) {
@@ -41,7 +41,7 @@ void Cpu::executeMemoryROR(OpCode &opCode) {
     }
 }
 
-void Cpu::executeAccumulatorROR(OpCode &opCode) {
+void Cpu65816::executeAccumulatorROR(OpCode &opCode) {
     if(accumulatorIs8BitWide()) {
         uint8_t value = Binary::lower8BitsOf(mA);
         DO_ROR_8_BIT(value);
@@ -53,7 +53,7 @@ void Cpu::executeAccumulatorROR(OpCode &opCode) {
     }
 }
 
-void Cpu::executeROR(OpCode &opCode) {
+void Cpu65816::executeROR(OpCode &opCode) {
     switch (opCode.getCode()) {
         case (0x6A):                // ROR accumulator
         {

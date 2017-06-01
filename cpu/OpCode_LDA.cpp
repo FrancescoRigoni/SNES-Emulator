@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #include <cmath>
 
@@ -8,20 +8,20 @@
  * This file contains implementations for all LDA OpCodes.
  */
 
-void Cpu::executeLDA8Bit(OpCode &opCode) {
+void Cpu65816::executeLDA8Bit(OpCode &opCode) {
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
     uint8_t value = mMemoryMapper.readByte(opCodeDataAddress);
     Binary::setLower8BitsOf16BitsValue(&mA, value);
     mCpuStatus.updateSignAndZeroFlagFrom8BitValue(value);
 }
 
-void Cpu::executeLDA16Bit(OpCode &opCode) {
+void Cpu65816::executeLDA16Bit(OpCode &opCode) {
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
     mA = mMemoryMapper.readTwoBytes(opCodeDataAddress);
     mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mA);
 }
 
-void Cpu::executeLDA(OpCode &opCode) {
+void Cpu65816::executeLDA(OpCode &opCode) {
     if (accumulatorIs16BitWide()) {
         executeLDA16Bit(opCode);
         addToCycles(1);

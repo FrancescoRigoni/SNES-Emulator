@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #include <cmath>
 
@@ -8,20 +8,20 @@
  * This file contains implementations for all LDX OpCodes.
  */
 
-void Cpu::executeLDX8Bit(OpCode &opCode) {
+void Cpu65816::executeLDX8Bit(OpCode &opCode) {
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
     uint8_t value = mMemoryMapper.readByte(opCodeDataAddress);
     Binary::setLower8BitsOf16BitsValue(&mX, value);
     mCpuStatus.updateSignAndZeroFlagFrom8BitValue(value);
 }
 
-void Cpu::executeLDX16Bit(OpCode &opCode) {
+void Cpu65816::executeLDX16Bit(OpCode &opCode) {
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
     mX = mMemoryMapper.readTwoBytes(opCodeDataAddress);
     mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mX);
 }
 
-void Cpu::executeLDX(OpCode &opCode) {
+void Cpu65816::executeLDX(OpCode &opCode) {
     if (indexIs16BitWide()) {
         executeLDX16Bit(opCode);
         addToCycles(1);

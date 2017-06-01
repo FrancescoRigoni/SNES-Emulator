@@ -18,20 +18,25 @@
 
 #define LOG_UNEXPECTED_OPCODE(opCode) Log::err(LOG_TAG).str("Unexpected OpCode: ").str(opCode.getName()).show();
 
-class Cpu {
+class Cpu65816 {
     public:
-        Cpu(MemoryMapper &, EmulationModeInterrupts *, NativeModeInterrupts *);
-
-        void setBreakPoint(uint8_t bank, uint16_t offset);
+        Cpu65816(MemoryMapper &, EmulationModeInterrupts *, NativeModeInterrupts *);
 
         // Temporary
         bool executeNext();
         // Deprecated
         bool useDeprecatedExecutor(OpCode &opCode);
 
+        // Debug stuff
+        // TODO: Move away
         void logCpuStatus();
+        bool mBreakpointEnabled;
+        uint8_t mBreakBank;
+        uint16_t mBreakOffset;
 
         void debug_setZeroFlag();
+        void setBreakPoint(uint8_t bank, uint16_t offset);
+        // End of debug stuff
 
     private:
         MemoryMapper &mMemoryMapper;
@@ -40,29 +45,25 @@ class Cpu {
         NativeModeInterrupts *mNativeInterrupts;
 
         // Accumulator register
-        uint16_t mA;
+        uint16_t mA = 0;
         // X index register
-        uint16_t mX;
-        // Y ndex register
-        uint16_t mY;
+        uint16_t mX = 0;
+        // Y index register
+        uint16_t mY = 0;
         // Status register
         CpuStatus mCpuStatus;
         // Data bank rgister
-        uint8_t mDB;
+        uint8_t mDB = 0;
         // Direct page register
-        uint16_t mD;
+        uint16_t mD = 0;
 
         Stack mStack;
 
         // Address of the current OpCode
-        Address mProgramAddress;
+        Address mProgramAddress {0x00, 0x0000};
 
         // Total number of cycles
         uint64_t mTotalCyclesCounter;
-
-        bool mBreakpointEnabled;
-        uint8_t mBreakBank;
-        uint16_t mBreakOffset;
 
         void initCpu();
         bool accumulatorIs8BitWide();

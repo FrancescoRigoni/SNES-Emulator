@@ -5,11 +5,9 @@
 #include "Device.hpp"
 #include "MemoryMapper.hpp"
 
-#define MOCK_RAM_SIZE 0x4000
-
 class MockRam : public Device {
     public:
-        MockRam(MemoryMapper &);
+        MockRam(MemoryMapper &, uint32_t);
         ~MockRam();
 
         // Methods inherited from Device

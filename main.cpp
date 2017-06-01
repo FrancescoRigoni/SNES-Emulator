@@ -1,5 +1,5 @@
 
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 #include "Cartridge.hpp"
 #include "Rom.hpp"
 #include "MemoryMapper.hpp"
@@ -58,11 +58,11 @@ int main(int argc, char **argv) {
     Ram ram(memoryMapper);
 
     // Initialize cpu
-    Cpu cpu(memoryMapper, InterruptTable::emulation, InterruptTable::native);
+    Cpu65816 cpu(memoryMapper, InterruptTable::emulation, InterruptTable::native);
 
     cpu.setBreakPoint(0x00, 0x8023);
 
-	char i;
+	//char i;
 	/*while (cpu.executeNext()){
 		//usleep(200*1000);
 	};*/

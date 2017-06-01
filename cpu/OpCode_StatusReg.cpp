@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Cpu::executeStatusReg"
 
@@ -7,7 +7,7 @@
  * that deal directly with the status register.
  */
 
-void Cpu::executeStatusReg(OpCode &opCode) {
+void Cpu65816::executeStatusReg(OpCode &opCode) {
     switch (opCode.getCode()) {
         case(0xC2):  // REP #const
         {

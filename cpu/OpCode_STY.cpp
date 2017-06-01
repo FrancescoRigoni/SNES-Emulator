@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Cpu::executeSTY"
 
@@ -6,7 +6,7 @@
  * This file contains the implementation for all STY OpCodes.
  */
 
-void Cpu::executeSTY(OpCode &opCode) {
+void Cpu65816::executeSTY(OpCode &opCode) {
     Address dataAddress = getAddressOfOpCodeData(opCode);
     if (accumulatorIs8BitWide()) {
         mMemoryMapper.storeByte(dataAddress, Binary::lower8BitsOf(mY));

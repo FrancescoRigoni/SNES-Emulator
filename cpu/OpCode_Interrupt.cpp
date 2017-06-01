@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Cpu::executeInterrupt"
 
@@ -7,7 +7,7 @@
  * that deal with interrupts.
  */
 
-void Cpu::executeInterrupt(OpCode &opCode) {
+void Cpu65816::executeInterrupt(OpCode &opCode) {
     switch (opCode.getCode()) {
         case(0x40):                 // RTI
         {

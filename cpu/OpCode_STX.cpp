@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Cpu::executeSTX"
 
@@ -6,7 +6,7 @@
  * This file contains the implementation for all STX OpCodes.
  */
 
-void Cpu::executeSTX(OpCode &opCode) {
+void Cpu65816::executeSTX(OpCode &opCode) {
     Address dataAddress = getAddressOfOpCodeData(opCode);
     if (accumulatorIs8BitWide()) {
         mMemoryMapper.storeByte(dataAddress, Binary::lower8BitsOf(mX));

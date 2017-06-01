@@ -1,11 +1,11 @@
 
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #include <cmath>
 
 #define LOG_TAG "Cpu"
 
-bool Cpu::executeNext() {
+bool Cpu65816::executeNext() {
     // Fetch the instruction
     const uint8_t instruction = mMemoryMapper.readByte(mProgramAddress);
     OpCode opCode = OP_CODE_TABLE[instruction];
@@ -23,7 +23,7 @@ bool Cpu::executeNext() {
     }
 }
 
-bool Cpu::useDeprecatedExecutor(OpCode &opCode) {
+bool Cpu65816::useDeprecatedExecutor(OpCode &opCode) {
     // Fetch address of OpCode data
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
     switch (opCode.getCode()) {

@@ -1,16 +1,17 @@
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE TestOpCodes
+#define BOOST_TEST_MODULE Test_STA
 #include <boost/test/unit_test.hpp>
 
 #include "MockRam.hpp"
 #include "Interrupt.hpp"
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
-#define RESET_INTERRUPT_ADDRESS 0x2000
+#define MOCK_RAM_SIZE               0x4000
+#define RESET_INTERRUPT_ADDRESS     0x2000
 
 MemoryMapper *memoryMapper;
 MockRam *mockRam;
-Cpu *cpu;
+Cpu65816 *cpu;
 
 EmulationModeInterrupts emulationInterrupts {
     .coProcessorEnable = 0x00,
@@ -33,8 +34,8 @@ NativeModeInterrupts nativeInterrupts {
 struct SuiteFixture {
     SuiteFixture() {
         memoryMapper = new MemoryMapper();
-        mockRam = new MockRam(*memoryMapper);
-        cpu = new Cpu(*memoryMapper, &emulationInterrupts, &nativeInterrupts);
+        mockRam = new MockRam(*memoryMapper, MOCK_RAM_SIZE);
+        cpu = new Cpu65816(*memoryMapper, &emulationInterrupts, &nativeInterrupts);
     }
     ~SuiteFixture() {
         delete cpu;

@@ -1,5 +1,5 @@
 
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #include <cmath>
 
@@ -8,7 +8,7 @@
  * Actual execution of the opcodes is performed inside Executor.cpp
  * These methods are called from there.
  */
-int Cpu::executeBranchShortOnCondition(bool condition, OpCode &opCode) {
+int Cpu65816::executeBranchShortOnCondition(bool condition, OpCode &opCode) {
     uint8_t opCycles = 2;
     uint8_t destination =  mMemoryMapper.readByte(getAddressOfOpCodeData(opCode));
     // This is the address of the next instruction
@@ -36,7 +36,7 @@ int Cpu::executeBranchShortOnCondition(bool condition, OpCode &opCode) {
     return opCycles;
 }
 
-int Cpu::executeBranchLongOnCondition(bool condition, OpCode &opCode) {
+int Cpu65816::executeBranchLongOnCondition(bool condition, OpCode &opCode) {
     if (condition) {
         uint16_t destination = mMemoryMapper.readTwoBytes(getAddressOfOpCodeData(opCode));
         mProgramAddress.incrementBy(3 + destination);

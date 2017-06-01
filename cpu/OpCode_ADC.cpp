@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Cpu::executeADC"
 
@@ -6,7 +6,7 @@
  * This file contains the implementation for all ADC OpCodes.
  */
 
-void Cpu::execute8BitADC(OpCode &opCode) {
+void Cpu65816::execute8BitADC(OpCode &opCode) {
     Address dataAddress = getAddressOfOpCodeData(opCode);
     uint8_t value = mMemoryMapper.readByte(dataAddress);
     uint8_t accumulator = Binary::lower8BitsOf(mA);
@@ -38,7 +38,7 @@ void Cpu::execute8BitADC(OpCode &opCode) {
     Binary::setLower8BitsOf16BitsValue(&mA, result8Bit);
 }
 
-void Cpu::execute16BitADC(OpCode &opCode) {
+void Cpu65816::execute16BitADC(OpCode &opCode) {
     Address dataAddress = getAddressOfOpCodeData(opCode);
     uint16_t value = mMemoryMapper.readTwoBytes(dataAddress);
     uint16_t accumulator = mA;
@@ -70,7 +70,7 @@ void Cpu::execute16BitADC(OpCode &opCode) {
     mA = result16Bit;
 }
 
-void Cpu::execute8BitBCDADC(OpCode &opCode) {
+void Cpu65816::execute8BitBCDADC(OpCode &opCode) {
     Address dataAddress = getAddressOfOpCodeData(opCode);
     uint8_t value = mMemoryMapper.readByte(dataAddress);
     uint8_t accumulator = Binary::lower8BitsOf(mA);
@@ -84,7 +84,7 @@ void Cpu::execute8BitBCDADC(OpCode &opCode) {
     mCpuStatus.updateSignAndZeroFlagFrom8BitValue(result);
 }
 
-void Cpu::execute16BitBCDADC(OpCode &opCode) {
+void Cpu65816::execute16BitBCDADC(OpCode &opCode) {
     Address dataAddress = getAddressOfOpCodeData(opCode);
     uint16_t value = mMemoryMapper.readTwoBytes(dataAddress);
     uint16_t accumulator = mA;
@@ -98,7 +98,7 @@ void Cpu::execute16BitBCDADC(OpCode &opCode) {
     mCpuStatus.updateSignAndZeroFlagFrom8BitValue(result);
 }
 
-void Cpu::executeADC(OpCode &opCode) {
+void Cpu65816::executeADC(OpCode &opCode) {
     // All OpCodes take one more cycle on 65C02 in decimal mode
 #ifdef EMU_65C02
     if (mCpuStatus.decimalFlag()) {

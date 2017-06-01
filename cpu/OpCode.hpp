@@ -5,21 +5,21 @@
 
 #include "Addressing.hpp"
 
-class Cpu;
+class Cpu65816;
 
 class OpCode {
     private:
         uint8_t mCode;
         const char * const mName;
         AddressingMode mAddressingMode;
-        void (Cpu::*mExecutor)(OpCode &);
+        void (Cpu65816::*mExecutor)(OpCode &);
 
     public:
         OpCode(uint8_t code, const char * const name, const AddressingMode &addressingMode) :
             mCode(code), mName(name), mAddressingMode(addressingMode), mExecutor(0) {
         }
 
-        OpCode(uint8_t code, const char * const name, const AddressingMode &addressingMode, void (Cpu::*executor)(OpCode &)) :
+        OpCode(uint8_t code, const char * const name, const AddressingMode &addressingMode, void (Cpu65816::*executor)(OpCode &)) :
             mCode(code), mName(name), mAddressingMode(addressingMode), mExecutor(executor) {
         }
 
@@ -35,7 +35,7 @@ class OpCode {
             return mAddressingMode;
         }
 
-        const bool execute(Cpu &cpu) {
+        const bool execute(Cpu65816 &cpu) {
             if (mExecutor != 0) {
                 OpCode opCode = *this;
                 (cpu.*mExecutor)(opCode);

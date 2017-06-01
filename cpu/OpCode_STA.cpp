@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Cpu::executeSTA"
 
@@ -6,7 +6,7 @@
  * This file contains the implementation for all STA OpCodes.
  */
 
-void Cpu::executeSTA(OpCode &opCode) {
+void Cpu65816::executeSTA(OpCode &opCode) {
 
     Address dataAddress = getAddressOfOpCodeData(opCode);
     if (accumulatorIs8BitWide()) {

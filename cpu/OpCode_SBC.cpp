@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Cpu::executeSBC"
 
@@ -6,7 +6,7 @@
  * This file contains the implementation for all SBC OpCodes.
  */
 
-void Cpu::execute8BitSBC(OpCode &opCode) {
+void Cpu65816::execute8BitSBC(OpCode &opCode) {
     Address dataAddress = getAddressOfOpCodeData(opCode);
     uint16_t value = (uint16_t) mMemoryMapper.readByte(dataAddress);
     uint16_t accumulator = (uint16_t) Binary::lower8BitsOf(mA);
@@ -15,7 +15,7 @@ void Cpu::execute8BitSBC(OpCode &opCode) {
         ++value;
     }
     // Let's use sum of two-complement instead of subtraction.
-    uint16_t twoComplementOfValue = ~value + 1;
+    //uint16_t twoComplementOfValue = ~value + 1;
     uint16_t result = (uint16_t)(accumulator + value);
 
     // Borrow was needed for this subtraction
@@ -28,19 +28,19 @@ void Cpu::execute8BitSBC(OpCode &opCode) {
 
 }
 
-void Cpu::execute16BitSBC(OpCode &opCode) {
+void Cpu65816::execute16BitSBC(OpCode &opCode) {
 
 }
 
-void Cpu::execute8BitBCDSBC(OpCode &opCode) {
+void Cpu65816::execute8BitBCDSBC(OpCode &opCode) {
 
 }
 
-void Cpu::execute16BitBCDSBC(OpCode &opCode) {
+void Cpu65816::execute16BitBCDSBC(OpCode &opCode) {
 
 }
 
-void Cpu::executeSBC(OpCode &opCode) {
+void Cpu65816::executeSBC(OpCode &opCode) {
     switch (opCode.getCode()) {
         case(0x6B):                 // RTL
         {

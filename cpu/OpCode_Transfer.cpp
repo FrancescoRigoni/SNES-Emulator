@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Cpu::executeTransfer"
 
@@ -7,7 +7,7 @@
  * These are OpCodes which transfer one register value to another.
  */
 
-void Cpu::executeTransfer(OpCode &opCode) {
+void Cpu65816::executeTransfer(OpCode &opCode) {
     switch (opCode.getCode()) {
         case(0xA8):  // TAY
         {

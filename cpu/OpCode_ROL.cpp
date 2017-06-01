@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Cpu::executeROL"
 
@@ -27,7 +27,7 @@
 /**
  * This file contains implementations for all ROL OpCodes.
  */
-void Cpu::executeMemoryROL(OpCode &opCode) {
+void Cpu65816::executeMemoryROL(OpCode &opCode) {
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
 
     if(accumulatorIs8BitWide()) {
@@ -41,7 +41,7 @@ void Cpu::executeMemoryROL(OpCode &opCode) {
     }
 }
 
-void Cpu::executeAccumulatorROL(OpCode &opCode) {
+void Cpu65816::executeAccumulatorROL(OpCode &opCode) {
     if(accumulatorIs8BitWide()) {
         uint8_t value = Binary::lower8BitsOf(mA);
         DO_ROL_8_BIT(value);
@@ -53,7 +53,7 @@ void Cpu::executeAccumulatorROL(OpCode &opCode) {
     }
 }
 
-void Cpu::executeROL(OpCode &opCode) {
+void Cpu65816::executeROL(OpCode &opCode) {
     switch (opCode.getCode()) {
         case (0x2A):                // ROL accumulator
         {

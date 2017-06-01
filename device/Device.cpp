@@ -31,7 +31,7 @@ Address Address::sumOffsetToAddress(const Address &address, uint16_t offset) {
 bool Address::offsetsAreOnDifferentPages(uint16_t offsetFirst, uint16_t offsetSecond) {
     int pageOfFirst = std::floor(offsetFirst / PAGE_SIZE_BYTES);
     int pageOfSecond = std::floor(offsetSecond / PAGE_SIZE_BYTES);
-    return offsetFirst != offsetSecond;
+    return pageOfFirst != pageOfSecond;
 }
 
 Address Address::newWithOffset(uint16_t offset) {

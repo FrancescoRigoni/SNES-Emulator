@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #include <cmath>
 
@@ -8,20 +8,20 @@
  * This file contains implementations for all LDY OpCodes.
  */
 
-void Cpu::executeLDY8Bit(OpCode &opCode) {
+void Cpu65816::executeLDY8Bit(OpCode &opCode) {
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
     uint8_t value = mMemoryMapper.readByte(opCodeDataAddress);
     Binary::setLower8BitsOf16BitsValue(&mY, value);
     mCpuStatus.updateSignAndZeroFlagFrom8BitValue(value);
 }
 
-void Cpu::executeLDY16Bit(OpCode &opCode) {
+void Cpu65816::executeLDY16Bit(OpCode &opCode) {
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
     mY = mMemoryMapper.readTwoBytes(opCodeDataAddress);
     mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mY);
 }
 
-void Cpu::executeLDY(OpCode &opCode) {
+void Cpu65816::executeLDY(OpCode &opCode) {
     if (indexIs16BitWide()) {
         executeLDY16Bit(opCode);
         addToCycles(1);

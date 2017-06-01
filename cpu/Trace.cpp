@@ -1,9 +1,9 @@
 #include "Log.hpp"
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Trace"
 
-void Cpu::trace(OpCode &opCode) {
+void Cpu65816::trace(OpCode &opCode) {
     Address onePlusOpCodeAddress = mProgramAddress.newWithOffset(1);
 
     Log &log = Log::trc(LOG_TAG);

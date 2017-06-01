@@ -3,8 +3,8 @@
 
 #include "MockRam.hpp"
 
-MockRam::MockRam(MemoryMapper &memoryMapper) {
-    mRam = new uint8_t[MOCK_RAM_SIZE];
+MockRam::MockRam(MemoryMapper &memoryMapper, uint32_t sizeInBytes) {
+    mRam = new uint8_t[sizeInBytes];
     memoryMapper.registerDevice(this);
 }
 

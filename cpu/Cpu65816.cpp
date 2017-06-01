@@ -1,11 +1,11 @@
 
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #include <cmath>
 
 #define LOG_TAG "Cpu"
 
-Cpu::Cpu(MemoryMapper &memoryMapper, EmulationModeInterrupts *emulationInterrupts, NativeModeInterrupts *nativeInterrupts) :
+Cpu65816::Cpu65816(MemoryMapper &memoryMapper, EmulationModeInterrupts *emulationInterrupts, NativeModeInterrupts *nativeInterrupts) :
             mMemoryMapper(memoryMapper),
             mEmulationInterrupts(emulationInterrupts),
             mNativeInterrupts(nativeInterrupts),
@@ -20,12 +20,12 @@ Cpu::Cpu(MemoryMapper &memoryMapper, EmulationModeInterrupts *emulationInterrupt
     Log::dbg(LOG_TAG).str("Native mode VSYNC vector at").sp().hex(mNativeInterrupts->nonMaskableInterrupt, 4).show();
 }
 
-void Cpu::debug_setZeroFlag() {
+void Cpu65816::debug_setZeroFlag() {
     Log::dbg(LOG_TAG).str(">> Forcing zero flag to 1").show();
     mCpuStatus.setZeroFlag();
 }
 
-void Cpu::initCpu() {
+void Cpu65816::initCpu() {
     mBreakpointEnabled = false;
 
     mA = 0;
@@ -40,58 +40,58 @@ void Cpu::initCpu() {
     mCpuStatus.setEmulationFlag();
 }
 
-void Cpu::setBreakPoint(uint8_t bank, uint16_t offset) {
+void Cpu65816::setBreakPoint(uint8_t bank, uint16_t offset) {
     mBreakpointEnabled = true;
     mBreakBank = bank;
     mBreakOffset = offset;
 }
 
-bool Cpu::accumulatorIs8BitWide() {
+bool Cpu65816::accumulatorIs8BitWide() {
     return mCpuStatus.accumulatorWidthFlag() || mCpuStatus.emulationFlag();
 }
 
-bool Cpu::accumulatorIs16BitWide() {
+bool Cpu65816::accumulatorIs16BitWide() {
     return !accumulatorIs8BitWide();
 }
 
-bool Cpu::indexIs8BitWide() {
+bool Cpu65816::indexIs8BitWide() {
     return mCpuStatus.indexWidthFlag() || mCpuStatus.emulationFlag();
 }
 
-bool Cpu::indexIs16BitWide() {
+bool Cpu65816::indexIs16BitWide() {
     return !indexIs8BitWide();
 }
 
-void Cpu::addToCycles(int cycles) {
+void Cpu65816::addToCycles(int cycles) {
     mTotalCyclesCounter += cycles;
 }
 
-void Cpu::subtractFromCycles(int cycles) {
+void Cpu65816::subtractFromCycles(int cycles) {
     mTotalCyclesCounter -= cycles;
 }
 
-void Cpu::addToProgramAddress(int bytes) {
+void Cpu65816::addToProgramAddress(int bytes) {
     mProgramAddress.incrementBy(bytes);
 }
 
-void Cpu::addToProgramAddressAndCycles(int bytes, int cycles) {
+void Cpu65816::addToProgramAddressAndCycles(int bytes, int cycles) {
     addToCycles(cycles);
     addToProgramAddress(bytes);
 }
 
-uint16_t Cpu::indexWithXRegister() {
+uint16_t Cpu65816::indexWithXRegister() {
     return indexIs8BitWide() ? Binary::lower8BitsOf(mX) : mX;
 }
 
-uint16_t Cpu::indexWithYRegister() {
+uint16_t Cpu65816::indexWithYRegister() {
     return indexIs8BitWide() ? Binary::lower8BitsOf(mY) : mY;
 }
 
-void Cpu::setProgramAddress(const Address &address) {
+void Cpu65816::setProgramAddress(const Address &address) {
     mProgramAddress = address;
 }
 
-void Cpu::logCpuStatus() {
+void Cpu65816::logCpuStatus() {
     Log::trc(LOG_TAG).str("====== CPU status start ======").show();
     Log::trc(LOG_TAG).str("A: ").hex(mA, 4).sp().str("X: ").hex(mX, 4).sp().str("Y: ").hex(mY, 4).show();
     Log::trc(LOG_TAG).str("PB: ").hex(mProgramAddress.getBank(), 2).sp().str("PC: ").hex(mProgramAddress.getOffset(), 4).show();

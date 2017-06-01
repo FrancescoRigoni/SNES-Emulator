@@ -1,4 +1,4 @@
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #include <cmath>
 
@@ -8,7 +8,7 @@
  * This file contains implementations for all AND OpCodes.
  */
 
-void Cpu::executeAND8Bit(OpCode &opCode) {
+void Cpu65816::executeAND8Bit(OpCode &opCode) {
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
     uint8_t operand = mMemoryMapper.readByte(opCodeDataAddress);
     uint8_t result = Binary::lower8BitsOf(mA) & operand;
@@ -16,7 +16,7 @@ void Cpu::executeAND8Bit(OpCode &opCode) {
     Binary::setLower8BitsOf16BitsValue(&mA, result);
 }
 
-void Cpu::executeAND16Bit(OpCode &opCode) {
+void Cpu65816::executeAND16Bit(OpCode &opCode) {
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
     uint16_t operand = mMemoryMapper.readTwoBytes(opCodeDataAddress);
     uint16_t result = mA & operand;
@@ -24,7 +24,7 @@ void Cpu::executeAND16Bit(OpCode &opCode) {
     mA = result;
 }
 
-void Cpu::executeAND(OpCode &opCode) {
+void Cpu65816::executeAND(OpCode &opCode) {
     if (accumulatorIs16BitWide()) {
         executeAND16Bit(opCode);
         addToCycles(1);

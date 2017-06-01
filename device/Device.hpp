@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #define BANK_SIZE_BYTES                0x10000
+#define HALF_BANK_SIZE_BYTES            0x8000
 #define PAGE_SIZE_BYTES                    256
 
 #define offsetIsInBankLow(offset) (offset < 0x8000)
@@ -58,6 +59,8 @@ class Address {
  */
 class Device {
     public:
+        virtual ~Device() {};
+
         /**
           Stores one byte to the real address represented by the specified virtual address.
           That is: maps the virtual address to the real one and stores one byte in it.

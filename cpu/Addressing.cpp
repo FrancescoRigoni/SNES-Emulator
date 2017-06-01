@@ -1,9 +1,9 @@
 
-#include "Cpu.hpp"
+#include "Cpu65816.hpp"
 
 #define LOG_TAG "Addressing"
 
-bool Cpu::opCodeAddressingCrossesPageBoundary(OpCode &opCode) {
+bool Cpu65816::opCodeAddressingCrossesPageBoundary(OpCode &opCode) {
     switch(opCode.getAddressingMode()) {
         case AbsoluteIndexedWithX:
         {
@@ -42,7 +42,7 @@ bool Cpu::opCodeAddressingCrossesPageBoundary(OpCode &opCode) {
     return false;
 }
 
-Address Cpu::getAddressOfOpCodeData(OpCode &opCode) {
+Address Cpu65816::getAddressOfOpCodeData(OpCode &opCode) {
     uint8_t dataAddressBank;
     uint16_t dataAddressOffset;
 

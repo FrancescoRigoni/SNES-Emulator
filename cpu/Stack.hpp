@@ -10,6 +10,7 @@
 
 class Stack {
     public:
+
         Stack(MemoryMapper *);
         Stack(MemoryMapper *, uint16_t);
         

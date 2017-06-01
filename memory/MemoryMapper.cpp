@@ -28,19 +28,18 @@ void MemoryMapper::registerDevice(Device *device) {
 }
 
 void MemoryMapper::storeByte(const Address &address, uint8_t value) {
-    for (int i = 0; i < mDevices.size(); i++) {
-        Device *device = mDevices[i];
+    for (Device *device : mDevices) {
         Address decodedAddress;
         if (device->decodeAddress(address, decodedAddress)) {
-            return device->storeByte(decodedAddress, value);
+            device->storeByte(decodedAddress, value);
+            return;
         }
     }
     Log::err(LOG_TAG).str("Trying to write to unmapped address!").show();
 }
 
 void MemoryMapper::storeTwoBytes(const Address &address, uint16_t value) {
-    for (int i = 0; i < mDevices.size(); i++) {
-        Device *device = mDevices[i];
+    for (Device *device : mDevices) {
         Address decodedAddress;
         if (device->decodeAddress(address, decodedAddress)) {
             uint8_t leastSignificantByte = (uint8_t)(value & 0xFF);
@@ -48,25 +47,25 @@ void MemoryMapper::storeTwoBytes(const Address &address, uint16_t value) {
             device->storeByte(decodedAddress, leastSignificantByte);
             decodedAddress.incrementBy(1);
             device->storeByte(decodedAddress, mostSignificantByte);
+            return;
         }
     }
     Log::err(LOG_TAG).str("Trying to write to unmapped address!").show();
 }
 
 uint8_t MemoryMapper::readByte(const Address &address) {
-    for (int i = 0; i < mDevices.size(); i++) {
-        Device *device = mDevices[i];
+    for (Device *device : mDevices) {
         Address decodedAddress;
         if (device->decodeAddress(address, decodedAddress)) {
             return device->readByte(decodedAddress);
         }
     }
     Log::err(LOG_TAG).str("Trying to read from unmapped address!").show();
+    return 0;
 }
 
 uint16_t MemoryMapper::readTwoBytes(const Address &address) {
-    for (int i = 0; i < mDevices.size(); i++) {
-        Device *device = mDevices[i];
+    for (Device *device : mDevices) {
         Address decodedAddress;
         if (device->decodeAddress(address, decodedAddress)) {
             uint8_t leastSignificantByte = device->readByte(decodedAddress);
@@ -77,13 +76,12 @@ uint16_t MemoryMapper::readTwoBytes(const Address &address) {
         }
     }
     Log::err(LOG_TAG).str("Trying to read from unmapped address!").show();
+    return 0;
 }
 
 Address MemoryMapper::readAddressAt(const Address &address) {
-    Address readAddress;
-    for (int i = 0; i < mDevices.size(); i++) {
-        Device *device = mDevices[i];
-        Address decodedAddress;
+    Address decodedAddress { 0x00, 0x0000 };
+    for (Device *device : mDevices) {
         if (device->decodeAddress(address, decodedAddress)) {
             // Read offset
             uint8_t leastSignificantByte = device->readByte(decodedAddress);
@@ -93,12 +91,11 @@ Address MemoryMapper::readAddressAt(const Address &address) {
             // Read bank
             decodedAddress.incrementBy(sizeof(uint8_t));
             uint8_t bank = device->readByte(decodedAddress);
-            Address address(bank, offset);
-            readAddress = address;
+            return Address(bank, offset);
         }
     }
     Log::err(LOG_TAG).str("Trying to read from unmapped address!").show();
-    return readAddress;
+    return decodedAddress;
 }
 
 /*
