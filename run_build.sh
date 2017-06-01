@@ -27,8 +27,7 @@ if [ $? -ne 0 ]; then
 fi
 
 showinfo "Running tests ..."
-make -j8 Example_coverage
-ctest
+ctest --verbose
 if [ $? -ne 0 ]; then
     error "Error: there are failed tests!"
     exit 4
