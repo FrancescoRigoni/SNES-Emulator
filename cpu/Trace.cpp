@@ -16,7 +16,13 @@ void Cpu65816::trace(OpCode &opCode) {
         case Implied:
             break;
         case Immediate:
-            log.str("#").hex(mMemoryMapper.readByte(getAddressOfOpCodeData(opCode)), 2);
+            // This refers to accumulator size to estimate the kind of value to print.
+            // Instructions using index registers might print the wrong value.
+            if (accumulatorIs8BitWide()) {
+                log.str("#").hex(mMemoryMapper.readByte(getAddressOfOpCodeData(opCode)), 2);
+            } else {
+                log.str("#").hex(mMemoryMapper.readTwoBytes(getAddressOfOpCodeData(opCode)), 4);
+            }
             break;
         case AbsoluteProgram:
             log.hex(getAddressOfOpCodeData(opCode).getOffset(), 4).sp();
@@ -56,7 +62,7 @@ void Cpu65816::trace(OpCode &opCode) {
             log.str("                    [Absolute Indexed, Y]");
             break;
         case DirectPage:
-            log.hex(mMemoryMapper.readByte(getAddressOfOpCodeData(opCode)), 2).sp();
+            log.hex(mMemoryMapper.readByte(onePlusOpCodeAddress), 2).sp();
             log.str("                      [Direct Page]");
             break;
         case DirectPageIndexedWithX:
@@ -68,7 +74,7 @@ void Cpu65816::trace(OpCode &opCode) {
             log.str("                    [Direct Page Indexed, Y]");
             break;
         case DirectPageIndirect:
-            log.str("(").hex(mMemoryMapper.readByte(getAddressOfOpCodeData(opCode)), 2).str(")").sp();
+            log.str("(").hex(mMemoryMapper.readByte(onePlusOpCodeAddress), 2).str(")").sp();
             log.str("                    [Direct Page Indirect]");
             break;
         case DirectPageIndirectLong:

@@ -15,7 +15,7 @@ file(GLOB root_src *.cpp)
 
 file(GLOB test_utils_src test/utils/*.cpp)
 
-add_executable(SnesEmu ${root_src} ${cpu_src} ${rom_src} ${memory_src} ${device_src} ${utils_src})
+add_executable(SnesEmu ${root_src} ${cpu_src} ${rom_src} ${memory_src} ${device_src} ${utils_src} test/utils/TestProgram.cpp)
 
 # Setup CMake to run tests
 enable_testing()
@@ -35,7 +35,7 @@ foreach(testSrc ${TEST_SRCS})
     include_directories(utils memory rom cpu debug interrupt device test test/cpu test/utils)
 
     #Add compile target
-    add_executable(${testName} ${testSrc} ${cpu_src} ${rom_src} ${memory_src} ${device_src} ${utils_src} ${test_utils_src})
+    add_executable(${testName} ${testSrc} ${cpu_src} ${rom_src} ${memory_src} ${device_src} ${utils_src} ${test_utils_src} test/utils/TestProgram.hpp test/utils/TestProgram.cpp test/utils/TestCommon.hpp)
 
     #link to Boost libraries AND your targets and dependencies
     target_link_libraries(${testName} ${Boost_LIBRARIES})

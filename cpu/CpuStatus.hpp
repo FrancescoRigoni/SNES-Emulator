@@ -63,7 +63,7 @@ class CpuStatus {
         bool mAccumulatorWidthFlag = false;
         bool mIndexWidthFlag = false;
         bool mCarryFlag = false;
-        bool mEmulationFlag = false;
+        bool mEmulationFlag = true; // CPU Starts in emulation mode
         bool mOverflowFlag = false;
         bool mBreakFlag = false;
 };

@@ -39,6 +39,16 @@ void Cpu65816::executeSTA(OpCode &opCode) {
             addToCycles(3);
             break;
         }
+        case(0x92):  // STA Direct Page Indirect
+        {
+            if (Binary::lower8BitsOf(mD) != 0) {
+                addToCycles(1);
+            }
+
+            addToProgramAddress(2);
+            addToCycles(5);
+            break;
+        }
         case(0x87):  // STA Direct Page Indirect Long
         {
             if (Binary::lower8BitsOf(mD) != 0) {

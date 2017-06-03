@@ -121,8 +121,15 @@ Address Cpu65816::getAddressOfOpCodeData(OpCode &opCode) {
             break;
         case DirectPage:
         {
+            // Direct page/Zero page always refers to bank zero
             dataAddressBank = 0x00;
-            dataAddressOffset = mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1));
+            if (mCpuStatus.emulationFlag()) {
+                // 6502 uses zero page
+                dataAddressOffset = mMemoryMapper.readByte(mProgramAddress.newWithOffset(1));
+            } else {
+                // 65816 uses direct page
+                dataAddressOffset = mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1));
+            }
         }
             break;
         case DirectPageIndexedWithX:

@@ -4,6 +4,7 @@
 
 #include "Device.hpp"
 #include "MemoryMapper.hpp"
+#include "TestProgram.hpp"
 
 class MockRam : public Device {
     public:
@@ -17,6 +18,7 @@ class MockRam : public Device {
         // End of methods inherited from Device
 
         void copyDataBlock(uint8_t *, uint32_t, uint32_t);
+        void loadProgram(const TestProgram &, const Address &);
 
     private:
         uint8_t *mRam;

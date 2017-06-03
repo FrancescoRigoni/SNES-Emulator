@@ -4,7 +4,7 @@
 #include "MockRam.hpp"
 
 MockRam::MockRam(MemoryMapper &memoryMapper, uint32_t sizeInBytes) {
-    mRam = new uint8_t[sizeInBytes];
+    mRam = new uint8_t[sizeInBytes]();  // This version of new initializes the memory to zero. new []().
     memoryMapper.registerDevice(this);
 }
 
@@ -28,4 +28,8 @@ bool MockRam::decodeAddress(const Address &virtualAddress, Address &decodedAddre
 
 void MockRam::copyDataBlock(uint8_t *data, uint32_t offset, uint32_t count) {
     std::memcpy((void *)(mRam+offset), (const void *) data, count);
+}
+
+void MockRam::loadProgram(const TestProgram &program, const Address & address) {
+    program.copyProgramBytes(mRam + RAW_ADDRESS(address));
 }

@@ -38,7 +38,12 @@ void Cpu65816::setBreakPoint(uint8_t bank, uint16_t offset) {
 }
 
 bool Cpu65816::accumulatorIs8BitWide() {
-    return mCpuStatus.accumulatorWidthFlag() || mCpuStatus.emulationFlag();
+    // Accumulator is always 8 bit in emulation mode.
+    if (mCpuStatus.emulationFlag()) return true;
+    // Accumulator width set to one means 8 bit accumulator.
+    else if (mCpuStatus.accumulatorWidthFlag()) return true;
+    // Else it is 16 bit wide.
+    else return false;
 }
 
 bool Cpu65816::accumulatorIs16BitWide() {
@@ -46,7 +51,12 @@ bool Cpu65816::accumulatorIs16BitWide() {
 }
 
 bool Cpu65816::indexIs8BitWide() {
-    return mCpuStatus.indexWidthFlag() || mCpuStatus.emulationFlag();
+    // Index is always 8 bit in emulation mode.
+    if (mCpuStatus.emulationFlag()) return true;
+    // Index width set to one means 8 bit accumulator.
+    else if (mCpuStatus.indexWidthFlag()) return true;
+    // Else it is 16 bit wide.
+    else return false;
 }
 
 bool Cpu65816::indexIs16BitWide() {

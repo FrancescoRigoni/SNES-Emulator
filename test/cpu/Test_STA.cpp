@@ -1,101 +1,175 @@
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE Test_STA
-#include <boost/test/unit_test.hpp>
 
-#include "MockRam.hpp"
-#include "Interrupt.hpp"
-#include "Cpu65816.hpp"
+#include "TestCommon.hpp"
 
-#define MOCK_RAM_SIZE               0x4000
-#define RESET_INTERRUPT_ADDRESS     0x2000
+BOOST_FIXTURE_TEST_SUITE(SUITE_TEST_STA, SuiteFixture)
 
-MemoryMapper *memoryMapper;
-MockRam *mockRam;
-Cpu65816 *cpu;
-
-EmulationModeInterrupts emulationInterrupts {
-    .coProcessorEnable = 0x00,
-    .unused = 0x00,
-    .abort = 0x00,
-    .nonMaskableInterrupt = 0x00,
-    .reset = RESET_INTERRUPT_ADDRESS,
-    .brkIrq = 0x00,
-};
-
-NativeModeInterrupts nativeInterrupts {
-    .coProcessorEnable = 0x00,
-    .brk = 0x00,
-    .abort = 0x00,
-    .nonMaskableInterrupt = 0x00,
-    .reset = 0x00,
-    .interruptRequest = 0x00,
-};
-
-struct SuiteFixture {
-    SuiteFixture() {
-        memoryMapper = new MemoryMapper();
-        mockRam = new MockRam(*memoryMapper, MOCK_RAM_SIZE);
-        cpu = new Cpu65816(*memoryMapper, &emulationInterrupts, &nativeInterrupts);
-    }
-    ~SuiteFixture() {
-        delete cpu;
-        delete mockRam;
-        delete memoryMapper;
-    }
-};
-
-BOOST_FIXTURE_TEST_SUITE(SUITE_LDA_STA, SuiteFixture)
-
-    BOOST_AUTO_TEST_CASE(STA_ABSOLUTE_8)
+    BOOST_AUTO_TEST_CASE(STA_ABSOLUTE_A_8)
     {
-        const int instructionsCount = 5;
-        uint8_t instructions[] = {
-                0xA9, 0x00,                  // LDA #$00
-                0x48,                        // PHA (Push Accumulator)
-                0xAB,                        // PLB (Pull Data Bank)
-                0xA9, 0xA5,                  // LDA #$A5
-                0x8D, 0x00, 0x10,            // STA $1000
-        };
-        mockRam->copyDataBlock(instructions, RESET_INTERRUPT_ADDRESS, sizeof(instructions));
+        INIT_TEST_PROGRAM();
 
-        for (int i = 0; i < instructionsCount; i++) cpu->executeNext();
+        Address storeAddress(0x01, 0x9000);
+        uint8_t storedValue = 0xA5;
 
-        BOOST_CHECK(memoryMapper->readTwoBytes(Address(0x00, 0x1000)) == 0xA5);
+        p.addProgram(FUP::setDataBankTo(storeAddress.getBank()));
+        p.addInstruction(0xA9).withOperand8(storedValue);                   // LDA Immediate
+        p.addInstruction(0x8D).withOperand16(storeAddress.getOffset());     // STA Absolute
+
+        LOAD_AND_RUN_TEST_PROGRAM();
+
+        BOOST_CHECK(memoryMapper->readByte(storeAddress) == storedValue);
     }
 
-    BOOST_AUTO_TEST_CASE(STA_ABSOLUTE_16)
+    BOOST_AUTO_TEST_CASE(STA_ABSOLUTE_A_16)
     {
-        const int instructionsCount = 7;
-        uint8_t instructions[] = {
-            0xA9, 0x00,                  // LDA #$00
-            0x48,                        // PHA (Push Accumulator)
-            0xAB,                        // PLB (Pull Data Bank)
-            0x18,                        // CLC
-            0xFB,                        // XCE
-            0xA9, 0x01, 0xC0,            // LDA #$C001
-            0x8D, 0x00, 0x10,            // STA $1000
-        };
-        mockRam->copyDataBlock(instructions, RESET_INTERRUPT_ADDRESS, sizeof(instructions));
+        /**
+         * Cpu in emulation mode
+         * Load a value into the A register
+         * Set data bank to the desired bank
+         * Switch cpu to native mode
+         * Use STA (Absolute) to store A to the desired offset
+         * Check that the correct value is in memory at the desired address
+         */
+        INIT_TEST_PROGRAM();
 
-        for (int i = 0; i < instructionsCount; i++) cpu->executeNext();
+        Address storeAddress(0x03, 0x9000);
+        uint16_t storedValue = 0xC12F;
 
-        BOOST_CHECK(memoryMapper->readTwoBytes(Address(0x00, 0x1000)) == 0xC001);
+        p.addProgram(FUP::setDataBankTo(storeAddress.getBank()));
+        p.addProgram(FUP::switchCpuToNativeMode());
+        p.addInstruction(0xA9).withOperand16(storedValue);                  // LDA Immediate
+        p.addInstruction(0x8D).withOperand16(storeAddress.getOffset());     // STA Absolute
+
+        LOAD_AND_RUN_TEST_PROGRAM();
+
+        BOOST_CHECK(memoryMapper->readTwoBytes(storeAddress) == storedValue);
     }
 
-    BOOST_AUTO_TEST_CASE(STA_ABSOLUTE_LONG_16)
+    BOOST_AUTO_TEST_CASE(STA_ABSOLUTE_LONG_A_16)
     {
-        const int instructionsCount = 4;
-        uint8_t instructions[] = {
-            0x18,                        // CLC
-            0xFB,                        // XCE
-            0xA9, 0x01, 0xC0,            // LDA #$C001
-            0x8F, 0x00, 0x00, 0x01,      // STA $010000
-        };
-        mockRam->copyDataBlock(instructions, RESET_INTERRUPT_ADDRESS, sizeof(instructions));
+        /**
+         * Cpu in native mode
+         * Load a value into the A register
+         * Use STA (Absolute Long) to store A to the desired offset
+         * Check that the correct value is in memory at the desired address
+         */
+        INIT_TEST_PROGRAM();
 
-        for (int i = 0; i < instructionsCount; i++) cpu->executeNext();
+        Address storeAddress(0x03, 0x9000);
+        uint16_t storedValue = 0xC12F;
 
-        BOOST_CHECK(memoryMapper->readTwoBytes(Address(0x01, 0x0000)) == 0xC001);
+        p.addProgram(FUP::switchCpuToNativeMode());
+        p.addInstruction(0xA9).withOperand16(storedValue);                  // LDA Absolute
+        p.addInstruction(0x8F).withOperandAddr(storeAddress);               // STA Absolute Long
+
+        LOAD_AND_RUN_TEST_PROGRAM();
+
+        BOOST_CHECK(memoryMapper->readTwoBytes(storeAddress) == storedValue);
     }
+
+    BOOST_AUTO_TEST_CASE(STA_ZERO_PAGE_A_8)
+    {
+        /**
+         * Cpu in emulation mode
+         * Load a value into the A register
+         * Use STA (Direct Page) to store A to the desired offset in zero page
+         * Check that the correct value is in memory at the desired offset in zero page
+         */
+        INIT_TEST_PROGRAM();
+
+        // Zero page is always in bank zero
+        Address storeAddress(0x00, 0x90);
+        uint8_t storedValue = 0x87;
+
+        p.addInstruction(0xA9).withOperand8(storedValue);                   // LDA Absolute
+        p.addInstruction(0x85).withOperand8(storeAddress.getOffset());      // STA Direct Page
+
+        LOAD_AND_RUN_TEST_PROGRAM();
+
+        BOOST_CHECK(memoryMapper->readByte(storeAddress) == storedValue);
+    }
+
+    BOOST_AUTO_TEST_CASE(STA_DIRECT_PAGE_A_16)
+    {
+        INIT_TEST_PROGRAM();
+
+        uint16_t directPageValue = 0x3456;
+        uint8_t offsetInDirectPage = 0x17;
+        Address storeAddress(0x00, directPageValue + offsetInDirectPage);
+        uint16_t storedValue = 0xAB87;
+
+        p.addProgram(FUP::switchCpuToNativeMode());
+        p.addProgram(FUP::setDirectPageTo(directPageValue));
+
+        p.addInstruction(0xA9).withOperand16(storedValue);          // LDA Absolute
+        p.addInstruction(0x85).withOperand8(offsetInDirectPage);    // STA Direct Page
+
+        LOAD_AND_RUN_TEST_PROGRAM();
+
+        BOOST_CHECK(memoryMapper->readTwoBytes(storeAddress) == storedValue);
+    }
+
+    BOOST_AUTO_TEST_CASE(STA_DIRECT_PAGE_INDIRECT_A_16)
+    {
+        /**
+         * Cpu in emulation mode
+         * Set Data Bank register to the desired value
+         * Cpu in native mode
+         * Setup indirect address in direct page
+         * Use STA (Direct Page Indirect) to store the value using direct page indirect
+         * Check that the correct value is in memory at the desired offset in direct page
+         */
+        INIT_TEST_PROGRAM();
+
+        uint16_t directPageValue = 0x3000;
+        uint8_t indirectAddressOffsetInDirectPage = 0x45;
+
+        Address storeAddress(0x02, 0x1234);
+        uint16_t storedValue = 0x97FC;
+
+        p.addProgram(FUP::setDataBankTo(storeAddress.getBank()));
+        p.addProgram(FUP::switchCpuToNativeMode());
+        p.addProgram(FUP::setDirectPageTo(directPageValue));
+        p.addProgram(FUP::store16BitAtOffsetInDirectPage(indirectAddressOffsetInDirectPage, storeAddress.getOffset()));
+
+        // Load in the A register the value to be stored and store it
+        p.addInstruction(0xA9).withOperand16(storedValue);                          // LDA Absolute
+        p.addInstruction(0x92).withOperand8(indirectAddressOffsetInDirectPage);     // STA Direct Page Indirect
+
+        LOAD_AND_RUN_TEST_PROGRAM();
+
+        BOOST_CHECK(memoryMapper->readTwoBytes(storeAddress) == storedValue);
+    }
+
+//    BOOST_AUTO_TEST_CASE(STA_ZERO_PAGE_INDIRECT_8)
+//    {
+//        /**
+//         * Cpu in emulation mode
+//         * Set Data Bank register to the desired value
+//         * Cpu in native mode
+//         * Setup indirect address in direct page
+//         * Use STA (Direct Page Indirect) to store the value using direct page indirect
+//         * Check that the correct value is in memory at the desired offset in direct page
+//         */
+//        INIT_TEST_PROGRAM();
+//
+//        uint16_t directPageValue = 0x3000;
+//        uint8_t indirectAddressOffsetInDirectPage = 0x45;
+//
+//        Address storeAddress(0x02, 0x1234);
+//        uint16_t storedValue = 0x97FC;
+//
+//        p.addProgram(FUP::setDataBankTo(storeAddress.getBank()));
+//        p.addProgram(FUP::switchCpuToNativeMode());
+//        p.addProgram(FUP::setDirectPageTo(directPageValue));
+//        p.addProgram(FUP::store16BitAtOffsetInDirectPage(indirectAddressOffsetInDirectPage, storeAddress.getOffset()));
+//
+//        // Load in the A register the value to be stored and store it
+//        p.addInstruction(0xA9).withOperand16(storedValue);                          // LDA Absolute
+//        p.addInstruction(0x92).withOperand8(indirectAddressOffsetInDirectPage);     // STA Direct Page Indirect
+//
+//        LOAD_AND_RUN_TEST_PROGRAM();
+//
+//        BOOST_CHECK(memoryMapper->readTwoBytes(storeAddress) == storedValue);
+//    }
 
 BOOST_AUTO_TEST_SUITE_END()
