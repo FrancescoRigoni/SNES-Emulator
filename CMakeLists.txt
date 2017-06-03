@@ -2,9 +2,16 @@ cmake_minimum_required (VERSION 2.6)
 project (SnesEmu)
 include_directories(utils memory rom cpu debug interrupt device)
 
-set (CMAKE_CXX_FLAGS "--std=gnu++14 -Wall ${CMAKE_CXX_FLAGS}")
-# Used by newer CMake
-set (CMAKE_CXX_STANDARD 14)
+if (CMAKE_VERSION VERSION_LESS "3.1")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set (CMAKE_CXX_FLAGS "--std=gnu++14 ${CMAKE_CXX_FLAGS}")
+endif ()
+else ()
+    set (CMAKE_CXX_STANDARD 14)
+endif ()
+
+# All warnings on
+set (CMAKE_CXX_FLAGS "-Wall ${CMAKE_CXX_FLAGS}")
 
 file(GLOB utils_src utils/*.cpp)
 file(GLOB memory_src memory/*.cpp)

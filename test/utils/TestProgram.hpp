@@ -61,12 +61,20 @@ class TestProgram {
 // Frequently Used Programs
 class FUP {
     public:
+        static TestProgram accumulatorTo16Bit();
+        static TestProgram accumulatorTo8Bit();
+        static TestProgram indexTo16Bit();
+        static TestProgram indexTo8Bit();
+        static TestProgram load16BitValueIntoAccumulator(uint16_t);
+        static TestProgram load8BitValueIntoAccumulator(uint8_t);
+        static TestProgram load16BitValueIntoIndexX(uint16_t);
+        static TestProgram load8BitValueIntoIndexX(uint8_t);
+        static TestProgram load16BitValueIntoIndexY(uint16_t);
+        static TestProgram load8BitValueIntoIndexY(uint8_t);
         static TestProgram switchCpuToNativeMode();
         static TestProgram setDataBankTo(uint8_t);
         static TestProgram setDirectPageTo(uint16_t);
         static TestProgram store16BitAtOffsetInDirectPage(uint8_t, uint16_t);
-        static TestProgram move8BitValueToXRegister(uint8_t);
-        static TestProgram move16BitValueToXRegister(uint16_t value);
 };
 
 #endif //SNESEMU_TESTPROGRAM_H

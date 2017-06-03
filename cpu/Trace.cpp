@@ -66,11 +66,11 @@ void Cpu65816::trace(OpCode &opCode) {
             log.str("                      [Direct Page]");
             break;
         case DirectPageIndexedWithX:
-            log.hex(mMemoryMapper.readByte(getAddressOfOpCodeData(opCode)), 2).str(", X").sp();
+            log.hex(mMemoryMapper.readByte(onePlusOpCodeAddress), 2).str(", X").sp();
             log.str("                    [Direct Page Indexed, X]");
             break;
         case DirectPageIndexedWithY:
-            log.hex(mMemoryMapper.readByte(getAddressOfOpCodeData(opCode)), 2).str(", Y").sp();
+            log.hex(mMemoryMapper.readByte(onePlusOpCodeAddress), 2).str(", Y").sp();
             log.str("                    [Direct Page Indexed, Y]");
             break;
         case DirectPageIndirect:
