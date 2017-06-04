@@ -50,6 +50,18 @@ void Cpu65816::executeStatusReg(OpCode &opCode) {
             addToProgramAddressAndCycles(2, 3);
             break;
         }
+        case(0x18):  // CLC
+        {
+            mCpuStatus.clearCarryFlag();
+            addToProgramAddressAndCycles(1, 2);
+            break;
+        }
+        case(0xD8):  // CLD
+        {
+            mCpuStatus.clearDecimalFlag();
+            addToProgramAddressAndCycles(1, 2);
+            break;
+        }
         case(0xFB):  // XCE
         {
             bool oldCarry = mCpuStatus.carryFlag();

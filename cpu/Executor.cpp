@@ -27,94 +27,7 @@ bool Cpu65816::useDeprecatedExecutor(OpCode &opCode) {
     // Fetch address of OpCode data
     Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
     switch (opCode.getCode()) {
-        case(0x00):  // BRK
-        {
-            if (mCpuStatus.emulationFlag()) {
-                mStack.push16Bit(mProgramAddress.getOffset()+2);
-                mStack.push8Bit(mCpuStatus.getRegisterValue());
-                Address newAddress(0x00, mEmulationInterrupts->brkIrq);
-                setProgramAddress(newAddress);
-                addToCycles(7);
-            } else {
-                mStack.push8Bit(mProgramAddress.getBank());
-                mStack.push16Bit(mProgramAddress.getOffset()+2);
-                mStack.push8Bit(mCpuStatus.getRegisterValue());
-                Address newAddress(0x00, mNativeInterrupts->brk);
-                setProgramAddress(newAddress);
-                addToCycles(8);
-            }
-            // This is done by the 65C02 but not by the NMOS 6502
-            mCpuStatus.clearDecimalFlag();
-            mCpuStatus.setInterruptDisableFlag();
-            break;
-        }
 
-        case(0x18):  // CLC
-        {
-            mCpuStatus.clearCarryFlag();
-            addToProgramAddressAndCycles(1,2);
-            break;
-        }
-        case(0x1B):  // TCS
-        {
-            uint16_t newStackPointer;
-            if (mCpuStatus.emulationFlag()) {
-                newStackPointer = mStack.getStackPointer();
-                newStackPointer &= 0xFF00;
-                newStackPointer |= Binary::lower8BitsOf(mA);
-            } else {
-                newStackPointer = mA;
-            }
-            mStack = Stack(&mMemoryMapper, newStackPointer);
-            addToProgramAddressAndCycles(1,2);
-            break;
-        }
-        case(0x20):  // JSR addr
-        {
-            mStack.push16Bit(mProgramAddress.getOffset()+2);
-            Address destinationAddress = getAddressOfOpCodeData(opCode);
-            setProgramAddress(destinationAddress);
-            addToCycles(6);
-            break;
-        }
-        case(0x22):  // JSR absolute long
-        {
-            Address destinationAddress = getAddressOfOpCodeData(opCode);
-            mStack.push8Bit(mProgramAddress.getBank());
-            mStack.push16Bit(mProgramAddress.getOffset()+3);
-            setProgramAddress(destinationAddress);
-            addToCycles(8);
-            break;
-        }
-        case(0x29):  // AND #const
-        {
-            if (accumulatorIs8BitWide()) {
-                mA = mMemoryMapper.readByte(opCodeDataAddress);
-                mCpuStatus.updateSignAndZeroFlagFrom8BitValue(Binary::lower8BitsOf(mA));
-                addToProgramAddressAndCycles(2,2);
-            } else {
-                mA = mMemoryMapper.readTwoBytes(opCodeDataAddress);
-                mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mA);
-                addToProgramAddressAndCycles(3,3);
-            }
-            break;
-        }
-
-
-        case(0x4C):  // JMP (absolute program)
-        {
-            setProgramAddress(opCodeDataAddress);
-            addToCycles(3);
-            break;
-        }
-
-
-        case(0x5C):  // JMP absolute long
-        {
-            setProgramAddress(opCodeDataAddress);
-            addToCycles(4);
-            break;
-        }
 
 
 
@@ -131,58 +44,6 @@ bool Cpu65816::useDeprecatedExecutor(OpCode &opCode) {
                 mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mY);
             }
             addToProgramAddressAndCycles(1,2);
-            break;
-        }
-        case(0xA2):  // LDX #const
-        {
-            if (indexIs8BitWide()) {
-                mX = mMemoryMapper.readByte(getAddressOfOpCodeData(opCode));
-                mCpuStatus.updateSignAndZeroFlagFrom8BitValue(Binary::lower8BitsOf(mX));
-                addToProgramAddressAndCycles(2,2);
-            } else {
-                mX = mMemoryMapper.readTwoBytes(getAddressOfOpCodeData(opCode));
-                mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mX);
-                addToProgramAddressAndCycles(3,3);
-            }
-            break;
-        }
-        case(0xA9):  // LDA #const
-        {
-            if (accumulatorIs8BitWide()) {
-                mA = mMemoryMapper.readByte(opCodeDataAddress);
-                mCpuStatus.updateSignAndZeroFlagFrom8BitValue(Binary::lower8BitsOf(mA));
-                addToProgramAddressAndCycles(2,2);
-            } else {
-                mA = mMemoryMapper.readTwoBytes(opCodeDataAddress);
-                mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mA);
-                addToProgramAddressAndCycles(3,2);
-            }
-            break;
-        }
-        case(0xAF):  // LDA Absolute Long
-        {
-            if (accumulatorIs8BitWide()) {
-                mA = mMemoryMapper.readByte(opCodeDataAddress);
-                mCpuStatus.updateSignAndZeroFlagFrom8BitValue(Binary::lower8BitsOf(mA));
-                addToProgramAddressAndCycles(4, 5);
-            } else {
-                mA = mMemoryMapper.readTwoBytes(opCodeDataAddress);
-                mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mA);
-                addToProgramAddressAndCycles(4, 6);
-            }
-            break;
-        }
-        case(0xBF):  // LDA Absolute Long Indexed X
-        {
-            if (accumulatorIs8BitWide()) {
-                mA = mMemoryMapper.readByte(opCodeDataAddress);
-                mCpuStatus.updateSignAndZeroFlagFrom8BitValue(Binary::lower8BitsOf(mA));
-                addToProgramAddressAndCycles(4, 5);
-            } else {
-                mA = mMemoryMapper.readTwoBytes(opCodeDataAddress);
-                mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mA);
-                addToProgramAddressAndCycles(4, 6);
-            }
             break;
         }
         case(0xC8):  // INY
@@ -216,12 +77,7 @@ bool Cpu65816::useDeprecatedExecutor(OpCode &opCode) {
             break;
         }
 
-        case(0xD8):  // CLD
-        {
-            mCpuStatus.clearDecimalFlag();
-            addToProgramAddressAndCycles(1,2);
-            break;
-        }
+
         case(0xE0):  // CPX #const
         {
             if (indexIs16BitWide()) {
@@ -258,29 +114,6 @@ bool Cpu65816::useDeprecatedExecutor(OpCode &opCode) {
             break;
         }
 
-
-
-        /*
-
-        case(0xA0):  // LDY #const
-        {
-            if (index8Bits()) {
-                mY = mMemoryMapper.readByte(mPB, mPC+1);
-
-                updateZeroFlagFromLower8BitsOf(mY);
-                updateSignFlagFromLower8BitsOf(mY);
-                addToProgramAddressAndCycles(2,2);
-            } else {
-                mY = mMemoryMapper.readTwoBytes(mPB, mPC+1);
-
-                updateZeroFlagFrom16BitValue(mY);
-                updateSignFlagFrom16BitValue(mY);
-                addToProgramAddressAndCycles(3,3);
-            }
-            break;
-        }*/
-        /*
-        */
 
 /*
         case(0xEC):  // CPX #addr

@@ -24,10 +24,6 @@ void Cpu65816::trace(OpCode &opCode) {
                 log.str("#").hex(mMemoryMapper.readTwoBytes(getAddressOfOpCodeData(opCode)), 4);
             }
             break;
-        case AbsoluteProgram:
-            log.hex(getAddressOfOpCodeData(opCode).getOffset(), 4).sp();
-            log.str("                    [Absolute (Program)]");
-            break;
         case Absolute:
             log.hex(getAddressOfOpCodeData(opCode).getOffset(), 4).sp();
             log.str("                    [Absolute]");
@@ -43,7 +39,7 @@ void Cpu65816::trace(OpCode &opCode) {
             break;
         case AbsoluteIndirectLong:
             break;
-        case AbsoluteIndexedIndirect:
+        case AbsoluteIndexedIndirectWithX:
             break;
         case AbsoluteIndexedWithX:
             log.hex(mMemoryMapper.readTwoBytes(onePlusOpCodeAddress), 4).str(", X").sp();

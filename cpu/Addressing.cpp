@@ -70,10 +70,6 @@ Address Cpu65816::getAddressOfOpCodeData(OpCode &opCode) {
             dataAddressBank = mDB;
             dataAddressOffset = mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1));
             break;
-        case AbsoluteProgram:
-            dataAddressBank = mProgramAddress.getBank();
-            dataAddressOffset = mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1));
-            break;
         case AbsoluteLong:
             mMemoryMapper.readAddressAt(mProgramAddress.newWithOffset(1)).getBankAndOffset(&dataAddressBank, &dataAddressOffset);
             break;
@@ -90,7 +86,7 @@ Address Cpu65816::getAddressOfOpCodeData(OpCode &opCode) {
             mMemoryMapper.readAddressAt(addressOfEffectiveAddress).getBankAndOffset(&dataAddressBank, &dataAddressOffset);
         }
             break;
-        case AbsoluteIndexedIndirect:
+        case AbsoluteIndexedIndirectWithX:
         {
             Address firstStageAddress(mProgramAddress.getBank(), mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1)));
             Address secondStageAddress = firstStageAddress.newWithOffsetNoWrapAround(indexWithXRegister());

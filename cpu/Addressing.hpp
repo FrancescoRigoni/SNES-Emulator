@@ -8,11 +8,10 @@ enum AddressingMode {
     Implied,
     Immediate,
     Absolute,
-    AbsoluteProgram,         // Absolute using Program Bank instead of Data Bank
     AbsoluteLong,
     AbsoluteIndirect,
     AbsoluteIndirectLong,
-    AbsoluteIndexedIndirect, // index with X
+    AbsoluteIndexedIndirectWithX, // index with X
     AbsoluteIndexedWithX,
     AbsoluteLongIndexedWithX,
     AbsoluteIndexedWithY,
