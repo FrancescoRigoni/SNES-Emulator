@@ -31,53 +31,6 @@ bool Cpu65816::useDeprecatedExecutor(OpCode &opCode) {
 
 
 
-        case(0x88):  // DEY
-        {
-            if (indexIs8BitWide()) {
-                uint8_t lowerY = Binary::lower8BitsOf(mY);
-                lowerY--;
-                mY &= 0xFF00;
-                mY |= lowerY;
-                mCpuStatus.updateSignAndZeroFlagFrom8BitValue(lowerY);
-            } else {
-                mY--;
-                mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mY);
-            }
-            addToProgramAddressAndCycles(1,2);
-            break;
-        }
-        case(0xC8):  // INY
-        {
-            if (indexIs8BitWide()) {
-                uint8_t lowerY = Binary::lower8BitsOf(mY);
-                lowerY++;
-                mY &= 0xFF00;
-                mY |= lowerY;
-                mCpuStatus.updateSignAndZeroFlagFrom8BitValue(lowerY);
-            } else {
-                mY++;
-                mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mY);
-            }
-            addToProgramAddressAndCycles(1,2);
-            break;
-        }
-        case(0xCA):  // DEX
-        {
-            if (indexIs8BitWide()) {
-                uint8_t lowerX = Binary::lower8BitsOf(mX);
-                lowerX--;
-                mX &= 0xFF00;
-                mX |= lowerX;
-                mCpuStatus.updateSignAndZeroFlagFrom8BitValue(lowerX);
-            } else {
-                mX--;
-                mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mX);
-            }
-            addToProgramAddressAndCycles(1,2);
-            break;
-        }
-
-
         case(0xE0):  // CPX #const
         {
             if (indexIs16BitWide()) {
@@ -98,21 +51,7 @@ bool Cpu65816::useDeprecatedExecutor(OpCode &opCode) {
             }
             break;
         }
-        case(0xE8):  // INX
-        {
-            if (indexIs8BitWide()) {
-                uint8_t lowerX = Binary::lower8BitsOf(mX);
-                lowerX++;
-                mX &= 0xFF00;
-                mX |= lowerX;
-                mCpuStatus.updateSignAndZeroFlagFrom8BitValue(lowerX);
-            } else {
-                mX++;
-                mCpuStatus.updateSignAndZeroFlagFrom16BitValue(mX);
-            }
-            addToProgramAddressAndCycles(1,2);
-            break;
-        }
+
 
 
 /*

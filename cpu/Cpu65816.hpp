@@ -137,6 +137,12 @@ class Cpu65816 {
         void execute8BitCMP(OpCode &);
         void execute16BitCMP(OpCode &);
         void executeCMP(OpCode &);
+        void execute8BitDecInMemory(OpCode &);
+        void execute16BitDecInMemory(OpCode &);
+        void execute8BitIncInMemory(OpCode &);
+        void execute16BitIncInMemory(OpCode &);
+        void executeINCDEC(OpCode &);
+
 
         static OpCode OP_CODE_TABLE[];
 };
