@@ -50,6 +50,32 @@ void Cpu65816::executeStatusReg(OpCode &opCode) {
             addToProgramAddressAndCycles(2, 3);
             break;
         }
+        case(0xFB):  // XCE
+        {
+            bool oldCarry = mCpuStatus.carryFlag();
+            bool oldEmulation = mCpuStatus.emulationFlag();
+            if (oldCarry) mCpuStatus.setEmulationFlag();
+            else mCpuStatus.clearEmulationFlag();
+            if (oldEmulation) mCpuStatus.setCarryFlag();
+            else mCpuStatus.clearCarryFlag();
+
+            mX &= 0xFF;
+            mY &= 0xFF;
+
+            if (mCpuStatus.emulationFlag()) {
+                mCpuStatus.setAccumulatorWidthFlag();
+                mCpuStatus.setIndexWidthFlag();
+            } else {
+                mCpuStatus.clearAccumulatorWidthFlag();
+                mCpuStatus.clearIndexWidthFlag();
+            }
+
+            // New stack
+            mStack = Stack(&mMemoryMapper);
+
+            addToProgramAddressAndCycles(1,2);
+            break;
+        }
         default: {
             LOG_UNEXPECTED_OPCODE(opCode);
         }

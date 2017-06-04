@@ -10,8 +10,8 @@
 #include "OpCode.hpp"
 #include "Log.hpp"
 
-#ifndef __CPU__
-#define __CPU__
+#ifndef __CPU_65816__
+#define __CPU_65816__
 
 // Uncomment the following define for 65C02 emulation
 // #define EMU_65C02
@@ -131,6 +131,9 @@ class Cpu65816 {
         void executeLDY8Bit(OpCode &);
         void executeLDY16Bit(OpCode &);
         void executeLDY(OpCode &);
+        void executeEOR8Bit(OpCode &);
+        void executeEOR16Bit(OpCode &);
+        void executeEOR(OpCode &);
 
         static OpCode OP_CODE_TABLE[];
 };
