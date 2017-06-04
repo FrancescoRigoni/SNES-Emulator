@@ -133,7 +133,10 @@ class Cpu65816 {
         void executeEOR(OpCode &);
         int executeBranchShortOnCondition(bool, OpCode &);
         int executeBranchLongOnCondition(bool, OpCode &);
-        void executeBranch(OpCode &opCode);
+        void executeBranch(OpCode &);
+        void execute8BitCMP(OpCode &);
+        void execute16BitCMP(OpCode &);
+        void executeCMP(OpCode &);
 
         static OpCode OP_CODE_TABLE[];
 };
