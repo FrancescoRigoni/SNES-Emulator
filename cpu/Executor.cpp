@@ -48,12 +48,7 @@ bool Cpu65816::useDeprecatedExecutor(OpCode &opCode) {
             mCpuStatus.setInterruptDisableFlag();
             break;
         }
-        case(0x10):  // BPL
-        {
-            int cycles = executeBranchShortOnCondition(!mCpuStatus.signFlag(), opCode);
-            addToCycles(cycles);
-            break;
-        }
+
         case(0x18):  // CLC
         {
             mCpuStatus.clearCarryFlag();
@@ -104,11 +99,7 @@ bool Cpu65816::useDeprecatedExecutor(OpCode &opCode) {
             }
             break;
         }
-        case(0x30):  // BMI
-        {
-            addToCycles(executeBranchShortOnCondition(mCpuStatus.signFlag(), opCode));
-            break;
-        }
+
 
         case(0x4C):  // JMP (absolute program)
         {
@@ -116,11 +107,7 @@ bool Cpu65816::useDeprecatedExecutor(OpCode &opCode) {
             addToCycles(3);
             break;
         }
-        case(0x50):  // BVC
-        {
-            addToCycles(executeBranchShortOnCondition(!mCpuStatus.overflowFlag(), opCode));
-            break;
-        }
+
 
         case(0x5C):  // JMP absolute long
         {
@@ -128,21 +115,8 @@ bool Cpu65816::useDeprecatedExecutor(OpCode &opCode) {
             addToCycles(4);
             break;
         }
-        case(0x70):  // BVS
-        {
-            addToCycles(executeBranchShortOnCondition(mCpuStatus.overflowFlag(), opCode));
-            break;
-        }
-        case(0x80):  // BRA
-        {
-            addToCycles(executeBranchShortOnCondition(true, opCode));
-            break;
-        }
-        case(0x82):  // BRL
-        {
-            addToCycles(executeBranchLongOnCondition(true, opCode));
-            break;
-        }
+
+
 
         case(0x88):  // DEY
         {
@@ -241,11 +215,7 @@ bool Cpu65816::useDeprecatedExecutor(OpCode &opCode) {
             addToProgramAddressAndCycles(1,2);
             break;
         }
-        case(0xD0):  // BNE
-        {
-            addToCycles(executeBranchShortOnCondition(!mCpuStatus.zeroFlag(), opCode));
-            break;
-        }
+
         case(0xD8):  // CLD
         {
             mCpuStatus.clearDecimalFlag();
@@ -287,88 +257,7 @@ bool Cpu65816::useDeprecatedExecutor(OpCode &opCode) {
             addToProgramAddressAndCycles(1,2);
             break;
         }
-        case(0xF0):  // BEQ
-        {
 
-            addToCycles(executeBranchShortOnCondition(mCpuStatus.zeroFlag(), opCode));
-            break;
-        }
-
-        /*
-
-        case(0x8A):  // TXA
-        {
-
-            if ((index8Bits() && accumulator8Bits()) || (index16Bits() && accumulator8Bits())) {
-                mA &= 0xFF00;
-                mA |= lower8BitsOf(mX);
-                updateSignFlagFromLower8BitsOf(lower8BitsOf(mA));
-                updateZeroFlagFromLower8BitsOf(lower8BitsOf(mA));
-            } else if (index8Bits() && accumulator16Bits()) {
-                mA = lower8BitsOf(mX);
-                updateSignFlagFromLower8BitsOf(lower8BitsOf(mA));
-                updateZeroFlagFromLower8BitsOf(lower8BitsOf(mA));
-            } else {
-                mA = mX;
-                updateSignFlagFrom16BitValue(mA);
-                updateZeroFlagFrom16BitValue(mA);
-            }
-            addToProgramAddressAndCycles(1, 2);
-            break;
-        }
-        case(0x98):  // TYA
-        {
-
-            if ((index8Bits() && accumulator8Bits()) || (index16Bits() && accumulator8Bits())) {
-                mA &= 0xFF00;
-                mA |= lower8BitsOf(mY);
-                updateSignFlagFromLower8BitsOf(mA);
-                updateZeroFlagFromLower8BitsOf(mA);
-            } else if (index8Bits() && accumulator16Bits()) {
-                mA = lower8BitsOf(mY);
-                updateSignFlagFromLower8BitsOf(mA);
-                updateZeroFlagFromLower8BitsOf(mA);
-            } else {
-                mA = mY;
-                updateSignFlagFrom16BitValue(mA);
-                updateZeroFlagFrom16BitValue(mA);
-            }
-            addToProgramAddressAndCycles(1, 2);
-            break;
-        }
-        case(0x3B):  // TSA
-        {
-
-            mA = mStack.getStackPointer();
-            updateSignFlagFrom16BitValue(mA);
-            updateZeroFlagFrom16BitValue(mA);
-            addToProgramAddressAndCycles(1, 2);
-            break;
-        }
-        case(0xBA):  // TSX
-        {
-
-            if (index8Bits() || mEmulationFlag) {
-                mX = lower8BitsOf(mStack.getStackPointer());
-                updateSignFlagFromLower8BitsOf(lower8BitsOf(mX));
-                updateZeroFlagFromLower8BitsOf(lower8BitsOf(mX));
-            } else {
-                mX = mStack.getStackPointer();
-                updateSignFlagFrom16BitValue(mX);
-                updateZeroFlagFrom16BitValue(mX);
-            }
-            addToProgramAddressAndCycles(1, 2);
-            break;
-        }*/
-        /*
-
-        case(0x90):  // BCC
-        {
-
-            addToCycles(executeBranchOnCondition(!(mP&STATUS_CARRY), opCode));
-            break;
-        }
-        */
 
 
         /*
@@ -393,14 +282,7 @@ bool Cpu65816::useDeprecatedExecutor(OpCode &opCode) {
         /*
         */
 
-        /*
-        case(0xB0):  // BCS
-        {
-
-            addToCycles(executeBranchOnCondition((mP&STATUS_CARRY), opCode));
-            break;
-        }*/
-        /*
+/*
         case(0xEC):  // CPX #addr
         {
             uint16_t offset = mMemoryMapper.readTwoBytes(mPB, mPC+1);

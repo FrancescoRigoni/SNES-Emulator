@@ -3,11 +3,12 @@
 
 #include <cmath>
 
+#define LOG_TAG "Cpu::executeBranch"
+
 /**
- * This file contains a bunch of methods used by branch OpCodes.
- * Actual execution of the opcodes is performed inside Executor.cpp
- * These methods are called from there.
+ * This file contains the implementation for all branch OpCodes
  */
+
 int Cpu65816::executeBranchShortOnCondition(bool condition, OpCode &opCode) {
     uint8_t opCycles = 2;
     uint8_t destination =  mMemoryMapper.readByte(getAddressOfOpCodeData(opCode));
@@ -43,4 +44,64 @@ int Cpu65816::executeBranchLongOnCondition(bool condition, OpCode &opCode) {
     }
     // CPU cycles: 4
     return 4;
+}
+
+void Cpu65816::executeBranch(OpCode &opCode) {
+
+    switch(opCode.getCode()) {
+        case(0xD0):  // BNE
+        {
+            addToCycles(executeBranchShortOnCondition(!mCpuStatus.zeroFlag(), opCode));
+            break;
+        }
+        case(0xF0):  // BEQ
+        {
+            addToCycles(executeBranchShortOnCondition(mCpuStatus.zeroFlag(), opCode));
+            break;
+        }
+        case(0x90):  // BCC
+        {
+            addToCycles(executeBranchShortOnCondition(!mCpuStatus.carryFlag(), opCode));
+            break;
+        }
+        case(0xB0):  // BCS
+        {
+            addToCycles(executeBranchShortOnCondition(mCpuStatus.carryFlag(), opCode));
+            break;
+        }
+        case(0x10):  // BPL
+        {
+            int cycles = executeBranchShortOnCondition(!mCpuStatus.signFlag(), opCode);
+            addToCycles(cycles);
+            break;
+        }
+        case(0x30):  // BMI
+        {
+            addToCycles(executeBranchShortOnCondition(mCpuStatus.signFlag(), opCode));
+            break;
+        }
+        case(0x50):  // BVC
+        {
+            addToCycles(executeBranchShortOnCondition(!mCpuStatus.overflowFlag(), opCode));
+            break;
+        }
+        case(0x70):  // BVS
+        {
+            addToCycles(executeBranchShortOnCondition(mCpuStatus.overflowFlag(), opCode));
+            break;
+        }
+        case(0x80):  // BRA
+        {
+            addToCycles(executeBranchShortOnCondition(true, opCode));
+            break;
+        }
+        case(0x82):  // BRL
+        {
+            addToCycles(executeBranchLongOnCondition(true, opCode));
+            break;
+        }
+        default: {
+            LOG_UNEXPECTED_OPCODE(opCode);
+        }
+    }
 }

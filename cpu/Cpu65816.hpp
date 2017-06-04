@@ -84,9 +84,6 @@ class Cpu65816 {
         void addToProgramAddress(int);
         void addToProgramAddressAndCycles(int, int);
 
-        int executeBranchShortOnCondition(bool, OpCode &);
-        int executeBranchLongOnCondition(bool, OpCode &);
-
         // OpCodes implementations. See OpCode_XXX.
         void executeORA(OpCode &);
         void executeORA8Bit(OpCode &);
@@ -134,6 +131,9 @@ class Cpu65816 {
         void executeEOR8Bit(OpCode &);
         void executeEOR16Bit(OpCode &);
         void executeEOR(OpCode &);
+        int executeBranchShortOnCondition(bool, OpCode &);
+        int executeBranchLongOnCondition(bool, OpCode &);
+        void executeBranch(OpCode &opCode);
 
         static OpCode OP_CODE_TABLE[];
 };
