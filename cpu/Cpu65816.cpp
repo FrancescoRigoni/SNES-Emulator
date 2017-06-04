@@ -92,6 +92,20 @@ void Cpu65816::setProgramAddress(const Address &address) {
     mProgramAddress = address;
 }
 
+bool Cpu65816::executeNext() {
+    // Fetch the instruction
+    const uint8_t instruction = mMemoryMapper.readByte(mProgramAddress);
+    OpCode opCode = OP_CODE_TABLE[instruction];
+    // Log the OpCode
+    trace(opCode);
+    // TODO: make decent debugger
+    if (mBreakpointEnabled) {
+        if (mProgramAddress.getBank() == mBreakBank && mProgramAddress.getOffset() == mBreakOffset) return false;
+    }
+    // Execute it
+    return opCode.execute(*this);
+}
+
 void Cpu65816::logCpuStatus() {
     Log::trc(LOG_TAG).str("====== CPU status start ======").show();
     Log::trc(LOG_TAG).str("A: ").hex(mA, 4).sp().str("X: ").hex(mX, 4).sp().str("Y: ").hex(mY, 4).show();

@@ -24,8 +24,6 @@ class Cpu65816 {
 
         // Temporary
         bool executeNext();
-        // Deprecated
-        bool useDeprecatedExecutor(OpCode &);
 
         // Debug stuff
         // TODO: Move away
@@ -54,7 +52,7 @@ class Cpu65816 {
         uint16_t mY = 0;
         // Status register
         CpuStatus mCpuStatus;
-        // Data bank rgister
+        // Data bank register
         uint8_t mDB = 0;
         // Direct page register
         uint16_t mD = 0;
@@ -142,7 +140,12 @@ class Cpu65816 {
         void execute8BitIncInMemory(OpCode &);
         void execute16BitIncInMemory(OpCode &);
         void executeINCDEC(OpCode &);
-
+        void execute8BitCPX(OpCode &);
+        void execute16BitCPX(OpCode &);
+        void execute8BitCPY(OpCode &);
+        void execute16BitCPY(OpCode &);
+        void executeCPXCPY(OpCode &);
+        void executeMisc(OpCode &);
 
         static OpCode OP_CODE_TABLE[];
 };
