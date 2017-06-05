@@ -1,4 +1,7 @@
 
+#ifndef __CPU_65816__
+#define __CPU_65816__
+
 #include <stdint.h>
 
 #include "MemoryMapper.hpp"
@@ -9,41 +12,26 @@
 #include "CpuStatus.hpp"
 #include "OpCode.hpp"
 #include "Log.hpp"
+#include "BuildConfig.hpp"
 
-#ifndef __CPU_65816__
-#define __CPU_65816__
-
-// Uncomment the following define for 65C02 emulation
-// #define EMU_65C02
-
+// Macro used by OpCode methods when an unrecognized OpCode is being executed.
 #define LOG_UNEXPECTED_OPCODE(opCode) Log::err(LOG_TAG).str("Unexpected OpCode: ").str(opCode.getName()).show();
 
+class Cpu65816Debugger;
+
 class Cpu65816 {
+        friend class Cpu65816Debugger;
     public:
         Cpu65816(MemoryMapper &, EmulationModeInterrupts *, NativeModeInterrupts *);
-
-        // Temporary
-        bool executeNext();
-
-        // Debug stuff
-        // TODO: Move away
-        void logCpuStatus();
-        bool mBreakpointEnabled = false;
-        uint8_t mBreakBank;
-        uint16_t mBreakOffset;
-
-        void debug_setZeroFlag();
-        void setBreakPoint(uint8_t, uint16_t);
-
-        void trace(OpCode &);
-        // End of debug stuff
 
         void setRESPin(bool);
         void setRDYPin(bool);
 
+        // Temporary
+        bool executeNextInstruction();
+
     private:
         MemoryMapper &mMemoryMapper;
-
         EmulationModeInterrupts *mEmulationInterrupts;
         NativeModeInterrupts *mNativeInterrupts;
 

@@ -60,6 +60,6 @@ struct SuiteFixture {
 
 #define LOAD_AND_RUN_TEST_PROGRAM() \
     mockRam->loadProgram(p, Address(0x00, RESET_INTERRUPT_ADDRESS)); \
-    for (auto i = 0; i < p.getInstructionsCount(); i++) cpu->executeNext()
+    for (auto i = 0; i < p.getInstructionsCount(); i++) cpu->executeNextInstruction()
 
 #endif //SNESEMU_TESTCOMMON

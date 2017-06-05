@@ -14,12 +14,6 @@ Cpu65816::Cpu65816(MemoryMapper &memoryMapper, EmulationModeInterrupts *emulatio
             mEmulationInterrupts(emulationInterrupts),
             mNativeInterrupts(nativeInterrupts),
             mStack(&mMemoryMapper) {
-
-    logCpuStatus();
-
-    Log::dbg(LOG_TAG).str("Emulation mode RST vector at").sp().hex(mEmulationInterrupts->reset, 4).show();
-    Log::dbg(LOG_TAG).str("Native mode BRK vector at").sp().hex(mNativeInterrupts->brk, 4).show();
-    Log::dbg(LOG_TAG).str("Native mode VSYNC vector at").sp().hex(mNativeInterrupts->nonMaskableInterrupt, 4).show();
 }
 
 /**
@@ -48,8 +42,7 @@ void Cpu65816::setRDYPin(bool value) {
     mPins.RDY = value;
 }
 
-bool Cpu65816::executeNext() {
-
+bool Cpu65816::executeNextInstruction() {
     if (mPins.RES) {
         return false;
     }
@@ -57,26 +50,9 @@ bool Cpu65816::executeNext() {
     // Fetch the instruction
     const uint8_t instruction = mMemoryMapper.readByte(mProgramAddress);
     OpCode opCode = OP_CODE_TABLE[instruction];
-    // Log the OpCode
-    trace(opCode);
-    // TODO: make decent debugger
-    if (mBreakpointEnabled) {
-        if (mProgramAddress.getBank() == mBreakBank && mProgramAddress.getOffset() == mBreakOffset) return false;
-    }
+
     // Execute it
     return opCode.execute(*this);
-}
-
-
-void Cpu65816::debug_setZeroFlag() {
-    Log::dbg(LOG_TAG).str(">> Forcing zero flag to 1").show();
-    mCpuStatus.setZeroFlag();
-}
-
-void Cpu65816::setBreakPoint(uint8_t bank, uint16_t offset) {
-    mBreakpointEnabled = true;
-    mBreakBank = bank;
-    mBreakOffset = offset;
 }
 
 bool Cpu65816::accumulatorIs8BitWide() {
@@ -132,16 +108,4 @@ uint16_t Cpu65816::indexWithYRegister() {
 
 void Cpu65816::setProgramAddress(const Address &address) {
     mProgramAddress = address;
-}
-
-void Cpu65816::logCpuStatus() {
-    Log::trc(LOG_TAG).str("====== CPU status start ======").show();
-    Log::trc(LOG_TAG).str("A: ").hex(mA, 4).sp().str("X: ").hex(mX, 4).sp().str("Y: ").hex(mY, 4).show();
-    Log::trc(LOG_TAG).str("PB: ").hex(mProgramAddress.getBank(), 2).sp().str("PC: ").hex(mProgramAddress.getOffset(), 4).show();
-    Log::trc(LOG_TAG).str("DB: ").hex(mDB, 2).sp().str("D: ").hex(mD, 4).show();
-    Log::trc(LOG_TAG).str("S (Stack pointer): ").hex(mStack.getStackPointer(), 4).show();
-    Log::trc(LOG_TAG).str("P (Status): ").hex(mCpuStatus.getRegisterValue(), 2).show();
-    Log::trc(LOG_TAG).str("Negative: ").str(mCpuStatus.signFlag() ? "1" : "0").show();
-    Log::trc(LOG_TAG).str("Zero: ").str(mCpuStatus.zeroFlag() ? "1" : "0").show();
-    Log::trc(LOG_TAG).str("====== CPU status end ======").show();
 }

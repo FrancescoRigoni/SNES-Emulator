@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <termios.h>
 #include <unistd.h>
+#include <functional>
+#include <Cpu65816Debugger.hpp>
 
 #define LOG_TAG "MAIN"
 
@@ -59,25 +61,19 @@ int main(int argc, char **argv) {
 
     // Initialize cpu
     Cpu65816 cpu(memoryMapper, InterruptTable::emulation, InterruptTable::native);
+    Cpu65816Debugger debugger(cpu);
+    debugger.onBreakPoint([]() {});
+    debugger.doBeforeStep([&debugger]() {
 
-    //cpu.setBreakPoint(0x00, 0x8023);
+        //char c = getchar();
+        //if (c == 'd') debugger.dumpCpu();
+    });
 
-	//char i;
-	/*while (cpu.executeNext()){
-		//usleep(200*1000);
-	};*/
+    debugger.doAfterStep([]() {
+    });
 
-    // Set RES pin low to enable CPU to run
-    cpu.setRESPin(false);
+    while(true) debugger.step();
 
-	while (true){
-		/*char c = getchar();
-		if (c == 'z') cpu.debug_setZeroFlag();
-		else if (c == 'd') cpu.logCpuStatus();
-		else if (c == 'q') break;
-		else */cpu.executeNext();
-       // usleep(50*1000);
-	};
 
 	restore_terminal_settings();
 

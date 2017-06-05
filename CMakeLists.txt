@@ -29,7 +29,7 @@ add_executable(SnesEmu ${root_src}
                        ${memory_src}
                        ${device_src}
                        ${utils_src}
-                       ${cpu_opcodes_src})
+                       ${cpu_opcodes_src} cpu/Cpu65816Debugger.cpp cpu/Cpu65816Debugger.hpp cpu/BuildConfig.hpp)
 
 # Setup CMake to run tests
 enable_testing()
