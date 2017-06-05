@@ -89,7 +89,7 @@ OpCode Cpu65816::OP_CODE_TABLE[] = {
     OpCode(0x51, "EOR", AddressingMode::DirectPageIndirectIndexedWithY,       &Cpu65816::executeEOR),
     OpCode(0x52, "EOR", AddressingMode::DirectPageIndirect,                   &Cpu65816::executeEOR),
     OpCode(0x53, "EOR", AddressingMode::StackRelativeIndirectIndexedWithY,    &Cpu65816::executeEOR),
-    OpCode(0x54, "MVN", AddressingMode::BlockMove),
+    OpCode(0x54, "MVN", AddressingMode::BlockMove,                            &Cpu65816::executeMisc),
     OpCode(0x55, "EOR", AddressingMode::DirectPageIndexedWithX,               &Cpu65816::executeEOR),
     OpCode(0x56, "LSR", AddressingMode::DirectPageIndexedWithX,               &Cpu65816::executeLSR),
     OpCode(0x57, "EOR", AddressingMode::DirectPageIndirectLongIndexedWithY,   &Cpu65816::executeEOR),

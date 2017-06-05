@@ -49,6 +49,31 @@ void Cpu65816::executeMisc(OpCode &opCode) {
             addToProgramAddress(3);
             break;
         }
+        case(0x54):     // MVN
+        {
+            Address addressOfOpCodeData = getAddressOfOpCodeData(opCode);
+            uint8_t destinationBank = mMemoryMapper.readByte(addressOfOpCodeData);
+            addressOfOpCodeData.incrementOffsetBy(1);
+            uint8_t sourceBank = mMemoryMapper.readByte(addressOfOpCodeData);
+
+            Address sourceAddress(sourceBank, mX);
+            Address destinationAddress(destinationBank, mY);
+
+            while(mA != 0xFFFF) {
+                uint8_t toTransfer = mMemoryMapper.readByte(sourceAddress);
+                mMemoryMapper.storeByte(destinationAddress, toTransfer);
+
+                sourceAddress.incrementOffsetBy(1);
+                destinationAddress.incrementOffsetBy(1);
+                mA--;
+
+                addToCycles(7);
+            }
+            mDB = destinationBank;
+
+            addToProgramAddress(3);
+            break;
+        }
         default:
         {
             LOG_UNEXPECTED_OPCODE(opCode);
