@@ -38,6 +38,9 @@ class Cpu65816 {
         void trace(OpCode &);
         // End of debug stuff
 
+        void setRESPin(bool);
+        void setRDYPin(bool);
+
     private:
         MemoryMapper &mMemoryMapper;
 
@@ -56,6 +59,13 @@ class Cpu65816 {
         uint8_t mDB = 0;
         // Direct page register
         uint16_t mD = 0;
+
+        struct {
+            // Reset to true means low power mode (do nothing)
+            bool RES = true;
+            // Ready to false means CPU is waiting for an NMI/IRQ/ABORT/RESET
+            bool RDY = false;
+        } mPins;
 
         Stack mStack;
 
@@ -161,6 +171,8 @@ class Cpu65816 {
         void executeAccumulatorLSR(OpCode &);
         void executeLSR(OpCode &);
         void executeMisc(OpCode &);
+
+        void reset();
 };
 
 #endif

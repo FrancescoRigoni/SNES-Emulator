@@ -46,6 +46,7 @@ struct SuiteFixture {
         memoryMapper = new MemoryMapper();
         mockRam = new MockRam(*memoryMapper, MOCK_RAM_SIZE);
         cpu = new Cpu65816(*memoryMapper, &emulationInterrupts, &nativeInterrupts);
+        cpu->setRESPin(false);
     }
     ~SuiteFixture() {
         delete cpu;

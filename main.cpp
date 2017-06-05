@@ -67,6 +67,9 @@ int main(int argc, char **argv) {
 		//usleep(200*1000);
 	};*/
 
+    // Set RES pin low to enable CPU to run
+    cpu.setRESPin(false);
+
 	while (true){
 		/*char c = getchar();
 		if (c == 'z') cpu.debug_setZeroFlag();

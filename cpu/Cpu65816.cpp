@@ -13,11 +13,7 @@ Cpu65816::Cpu65816(MemoryMapper &memoryMapper, EmulationModeInterrupts *emulatio
             mMemoryMapper(memoryMapper),
             mEmulationInterrupts(emulationInterrupts),
             mNativeInterrupts(nativeInterrupts),
-            mStack(&mMemoryMapper),
-            mProgramAddress(0x00, emulationInterrupts->reset) {
-
-    // Start in emulation mode
-    mCpuStatus.setEmulationFlag();
+            mStack(&mMemoryMapper) {
 
     logCpuStatus();
 
@@ -25,6 +21,52 @@ Cpu65816::Cpu65816(MemoryMapper &memoryMapper, EmulationModeInterrupts *emulatio
     Log::dbg(LOG_TAG).str("Native mode BRK vector at").sp().hex(mNativeInterrupts->brk, 4).show();
     Log::dbg(LOG_TAG).str("Native mode VSYNC vector at").sp().hex(mNativeInterrupts->nonMaskableInterrupt, 4).show();
 }
+
+/**
+ * Resets the cpu to its initial state.
+ * */
+void Cpu65816::reset() {
+    setRESPin(true);
+    mCpuStatus.setEmulationFlag();
+    mCpuStatus.setAccumulatorWidthFlag();
+    mCpuStatus.setIndexWidthFlag();
+    mX &= 0xFF;
+    mY &= 0xFF;
+    mD = 0x0;
+    mStack = Stack(&mMemoryMapper);
+    mProgramAddress = Address(0x00, mEmulationInterrupts->reset);
+}
+
+void Cpu65816::setRESPin(bool value) {
+    if (value == false && mPins.RES == true) {
+        reset();
+    }
+    mPins.RES = value;
+}
+
+void Cpu65816::setRDYPin(bool value) {
+    mPins.RDY = value;
+}
+
+bool Cpu65816::executeNext() {
+
+    if (mPins.RES) {
+        return false;
+    }
+
+    // Fetch the instruction
+    const uint8_t instruction = mMemoryMapper.readByte(mProgramAddress);
+    OpCode opCode = OP_CODE_TABLE[instruction];
+    // Log the OpCode
+    trace(opCode);
+    // TODO: make decent debugger
+    if (mBreakpointEnabled) {
+        if (mProgramAddress.getBank() == mBreakBank && mProgramAddress.getOffset() == mBreakOffset) return false;
+    }
+    // Execute it
+    return opCode.execute(*this);
+}
+
 
 void Cpu65816::debug_setZeroFlag() {
     Log::dbg(LOG_TAG).str(">> Forcing zero flag to 1").show();
@@ -90,20 +132,6 @@ uint16_t Cpu65816::indexWithYRegister() {
 
 void Cpu65816::setProgramAddress(const Address &address) {
     mProgramAddress = address;
-}
-
-bool Cpu65816::executeNext() {
-    // Fetch the instruction
-    const uint8_t instruction = mMemoryMapper.readByte(mProgramAddress);
-    OpCode opCode = OP_CODE_TABLE[instruction];
-    // Log the OpCode
-    trace(opCode);
-    // TODO: make decent debugger
-    if (mBreakpointEnabled) {
-        if (mProgramAddress.getBank() == mBreakBank && mProgramAddress.getOffset() == mBreakOffset) return false;
-    }
-    // Execute it
-    return opCode.execute(*this);
 }
 
 void Cpu65816::logCpuStatus() {

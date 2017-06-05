@@ -17,11 +17,32 @@ void Cpu65816::executeMisc(OpCode &opCode) {
             addToProgramAddressAndCycles(1, 3);
             break;
         }
+        case(0xDB):     // STP
+        {
+            reset();
+            addToProgramAddress(1);
+            addToCycles(3);
+            break;
+
+        }
+        case(0xCB):     // WAI
+        {
+            setRDYPin(false);
+
+            addToProgramAddress(1);
+            addToCycles(3);
+            break;
+        }
         case(0x42):     // WDM
         {
             addToProgramAddress(2);
             addToCycles(2);
-            // Check cycles should be equal to executing two NOPs
+            break;
+        }
+        case(0xEA):     // NOP
+        {
+            addToProgramAddress(1);
+            addToCycles(2);
             break;
         }
         case(0x44):     // MVP
