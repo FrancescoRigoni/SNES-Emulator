@@ -37,8 +37,8 @@ class Address {
         Address newWithOffsetNoWrapAround(uint16_t);
         Address newWithOffsetWrapAround(uint16_t);
 
-        void incrementBy(uint16_t);
-        void decrementBy(uint16_t);
+        void incrementOffsetBy(uint16_t);
+        void decrementOffsetBy(uint16_t);
 
         void getBankAndOffset(uint8_t *bank, uint16_t *offset) {
             *bank = mBank;

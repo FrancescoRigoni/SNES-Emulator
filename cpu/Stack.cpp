@@ -18,7 +18,7 @@ Stack::Stack(MemoryMapper *memoryMapper, uint16_t stackPointer) :
 
 void Stack::push8Bit(uint8_t value) {
     mMemoryMapper->storeByte(mStackAddress, value);
-    mStackAddress.decrementBy(sizeof(uint8_t));
+    mStackAddress.decrementOffsetBy(sizeof(uint8_t));
 }
 
 void Stack::push16Bit(uint16_t value) {
@@ -29,7 +29,7 @@ void Stack::push16Bit(uint16_t value) {
 }
 
 uint8_t Stack::pull8Bit() {
-    mStackAddress.incrementBy(sizeof(uint8_t));
+    mStackAddress.incrementOffsetBy(sizeof(uint8_t));
     return mMemoryMapper->readByte(mStackAddress);
 }
 

@@ -72,7 +72,7 @@ void Cpu65816::subtractFromCycles(int cycles) {
 }
 
 void Cpu65816::addToProgramAddress(int bytes) {
-    mProgramAddress.incrementBy(bytes);
+    mProgramAddress.incrementOffsetBy(bytes);
 }
 
 void Cpu65816::addToProgramAddressAndCycles(int bytes, int cycles) {

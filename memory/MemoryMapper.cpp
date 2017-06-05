@@ -45,7 +45,7 @@ void MemoryMapper::storeTwoBytes(const Address &address, uint16_t value) {
             uint8_t leastSignificantByte = (uint8_t)(value & 0xFF);
             uint8_t mostSignificantByte = (uint8_t)((value & 0xFF00) >> 8);
             device->storeByte(decodedAddress, leastSignificantByte);
-            decodedAddress.incrementBy(1);
+            decodedAddress.incrementOffsetBy(1);
             device->storeByte(decodedAddress, mostSignificantByte);
             return;
         }
@@ -69,7 +69,7 @@ uint16_t MemoryMapper::readTwoBytes(const Address &address) {
         Address decodedAddress;
         if (device->decodeAddress(address, decodedAddress)) {
             uint8_t leastSignificantByte = device->readByte(decodedAddress);
-            decodedAddress.incrementBy(sizeof(uint8_t));
+            decodedAddress.incrementOffsetBy(sizeof(uint8_t));
             uint8_t mostSignificantByte = device->readByte(decodedAddress);
             uint16_t value = ((uint16_t)mostSignificantByte << 8) | leastSignificantByte;
             return value;
@@ -85,11 +85,11 @@ Address MemoryMapper::readAddressAt(const Address &address) {
         if (device->decodeAddress(address, decodedAddress)) {
             // Read offset
             uint8_t leastSignificantByte = device->readByte(decodedAddress);
-            decodedAddress.incrementBy(sizeof(uint8_t));
+            decodedAddress.incrementOffsetBy(sizeof(uint8_t));
             uint8_t mostSignificantByte = device->readByte(decodedAddress);
             uint16_t offset = ((uint16_t)mostSignificantByte << 8) | leastSignificantByte;
             // Read bank
-            decodedAddress.incrementBy(sizeof(uint8_t));
+            decodedAddress.incrementOffsetBy(sizeof(uint8_t));
             uint8_t bank = device->readByte(decodedAddress);
             return Address(bank, offset);
         }

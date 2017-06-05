@@ -46,10 +46,10 @@ Address Address::newWithOffsetWrapAround(uint16_t offset) {
     return sumOffsetToAddressWrapAround((const Address &)*this, offset);
 }
 
-void Address::decrementBy(uint16_t offset) {
+void Address::decrementOffsetBy(uint16_t offset) {
     mOffset -= offset;
 }
 
-void Address::incrementBy(uint16_t offset) {
+void Address::incrementOffsetBy(uint16_t offset) {
     mOffset += offset;
 }

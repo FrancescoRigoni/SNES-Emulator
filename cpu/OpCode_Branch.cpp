@@ -40,7 +40,7 @@ int Cpu65816::executeBranchShortOnCondition(bool condition, OpCode &opCode) {
 int Cpu65816::executeBranchLongOnCondition(bool condition, OpCode &opCode) {
     if (condition) {
         uint16_t destination = mMemoryMapper.readTwoBytes(getAddressOfOpCodeData(opCode));
-        mProgramAddress.incrementBy(3 + destination);
+        mProgramAddress.incrementOffsetBy(3 + destination);
     }
     // CPU cycles: 4
     return 4;
