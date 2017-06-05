@@ -35,7 +35,7 @@ void MemoryMapper::storeByte(const Address &address, uint8_t value) {
             return;
         }
     }
-    Log::err(LOG_TAG).str("Trying to write to unmapped address!").show();
+    //Log::err(LOG_TAG).str("Trying to write to unmapped address!").show();
 }
 
 void MemoryMapper::storeTwoBytes(const Address &address, uint16_t value) {
@@ -50,7 +50,7 @@ void MemoryMapper::storeTwoBytes(const Address &address, uint16_t value) {
             return;
         }
     }
-    Log::err(LOG_TAG).str("Trying to write to unmapped address!").show();
+    //Log::err(LOG_TAG).str("Trying to write to unmapped address!").show();
 }
 
 uint8_t MemoryMapper::readByte(const Address &address) {
@@ -60,7 +60,7 @@ uint8_t MemoryMapper::readByte(const Address &address) {
             return device->readByte(decodedAddress);
         }
     }
-    Log::err(LOG_TAG).str("Trying to read from unmapped address!").show();
+    //Log::err(LOG_TAG).str("Trying to read from unmapped address!").show();
     return 0;
 }
 
@@ -75,7 +75,7 @@ uint16_t MemoryMapper::readTwoBytes(const Address &address) {
             return value;
         }
     }
-    Log::err(LOG_TAG).str("Trying to read from unmapped address!").show();
+    //Log::err(LOG_TAG).str("Trying to read from unmapped address!").show();
     return 0;
 }
 
@@ -94,7 +94,7 @@ Address MemoryMapper::readAddressAt(const Address &address) {
             return Address(bank, offset);
         }
     }
-    Log::err(LOG_TAG).str("Trying to read from unmapped address!").show();
+    //Log::err(LOG_TAG).str("Trying to read from unmapped address!").show();
     return decodedAddress;
 }
 

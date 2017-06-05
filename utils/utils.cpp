@@ -92,18 +92,18 @@ uint16_t convert16BitToBcd(uint16_t val)
   	return result;
 }
 
-bool bcdSum8Bit(uint8_t bcdFirst, uint8_t bcdSecond, uint8_t *bcdResult, bool carry) {
+bool bcdSum8Bit(uint8_t bcdFirst, uint8_t bcdSecond, uint8_t *result, bool carry) {
 	uint8_t shift = 0;
-	*bcdResult = 0;
+	*result = 0;
 
-	while (bcdFirst > 0 || bcdSecond > 0) {
+	while (shift < 8) {
 		uint8_t digitOfFirst = bcdFirst & 0xF;
 		uint8_t digitOfSecond = bcdSecond & 0xF;
 		uint8_t sumOfDigits = digitOfFirst + digitOfSecond + (carry ? 1 : 0);
 		carry = sumOfDigits > 9;
 		if (carry) sumOfDigits += 6;
 		sumOfDigits &= 0xF;
-		*bcdResult |= sumOfDigits << shift;
+		*result |= sumOfDigits << shift;
 
 		shift += 4;
 		bcdFirst >>= shift;
@@ -113,20 +113,57 @@ bool bcdSum8Bit(uint8_t bcdFirst, uint8_t bcdSecond, uint8_t *bcdResult, bool ca
 	return carry;
 }
 
-bool bcdSum16Bit(uint16_t bcdFirst, uint16_t bcdSecond, uint16_t *bcdResult, bool carry) {
-	*bcdResult = 0;
+bool bcdSubtract8Bit(uint8_t bcdFirst, uint8_t bcdSecond, uint8_t *result, bool borrow) {
 	uint8_t shift = 0;
-	while (bcdFirst > 0 || bcdSecond > 0) {
+	*result = 0;
+
+	while (shift < 8) {
+		uint8_t digitOfFirst = bcdFirst & 0xF;
+		uint8_t digitOfSecond = bcdSecond & 0xF;
+		uint8_t diffOfDigits = digitOfFirst - digitOfSecond - (borrow ? 1 : 0);
+		borrow = diffOfDigits > 9;
+		if (borrow) diffOfDigits -= 6;
+		diffOfDigits &= 0xF;
+		*result |= diffOfDigits << shift;
+
+		shift += 4;
+		bcdFirst >>= shift;
+		bcdSecond >>= shift;
+	}
+
+	return borrow;
+}
+
+bool bcdSum16Bit(uint16_t bcdFirst, uint16_t bcdSecond, uint16_t *result, bool carry) {
+	*result = 0;
+	uint8_t shift = 0;
+	while (shift < 16) {
 		uint8_t digitOfFirst = bcdFirst & 0xFF;
 		uint8_t digitOfSecond = bcdSecond & 0xFF;
 		uint8_t partialresult = 0;
 		carry = bcdSum8Bit(digitOfFirst, digitOfSecond, &partialresult, carry);
-		*bcdResult |= partialresult << shift;
+		*result |= partialresult << shift;
 		shift += 8;
 		bcdFirst >>= shift;
 		bcdSecond >>= shift;
 	}
 	return carry;
+}
+
+bool bcdSubtract16Bit(uint16_t bcdFirst, uint16_t bcdSecond, uint16_t *result, bool borrow) {
+	*result = 0;
+	uint8_t shift = 0;
+	while (shift < 16) {
+		uint8_t digitOfFirst = bcdFirst & 0xFF;
+		uint8_t digitOfSecond = bcdSecond & 0xFF;
+		uint8_t partialresult = 0;
+		borrow = bcdSubtract8Bit(digitOfFirst, digitOfSecond, &partialresult, borrow);
+		*result |= partialresult << shift;
+		shift += 8;
+		bcdFirst >>= shift;
+		bcdSecond >>= shift;
+	}
+	return borrow;
 }
 
 }

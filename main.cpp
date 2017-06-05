@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     // Initialize cpu
     Cpu65816 cpu(memoryMapper, InterruptTable::emulation, InterruptTable::native);
 
-    cpu.setBreakPoint(0x00, 0x8023);
+    //cpu.setBreakPoint(0x00, 0x8023);
 
 	//char i;
 	/*while (cpu.executeNext()){
@@ -68,11 +68,12 @@ int main(int argc, char **argv) {
 	};*/
 
 	while (true){
-		char c = getchar();
+		/*char c = getchar();
 		if (c == 'z') cpu.debug_setZeroFlag();
 		else if (c == 'd') cpu.logCpuStatus();
 		else if (c == 'q') break;
-		else cpu.executeNext();
+		else */cpu.executeNext();
+       // usleep(50*1000);
 	};
 
 	restore_terminal_settings();

@@ -24,6 +24,8 @@ namespace Binary {
     uint16_t convert16BitToBcd(uint16_t);
     bool bcdSum8Bit(uint8_t, uint8_t, uint8_t *, bool);
     bool bcdSum16Bit(uint16_t, uint16_t, uint16_t *, bool);
+    bool bcdSubtract8Bit(uint8_t, uint8_t, uint8_t *, bool);
+    bool bcdSubtract16Bit(uint16_t, uint16_t, uint16_t *, bool);
 
 }
 

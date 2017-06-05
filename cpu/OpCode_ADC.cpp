@@ -21,7 +21,7 @@ void Cpu65816::execute8BitADC(OpCode &opCode) {
     // Is bit 8 set?
     bool carryOutOfPenultimateBit = partialResult & 0x80;
 
-    // Is there a carry out of the last bit, check bit 8 for that?
+    // Is there a carry out of the last bit, check bit 8 for that
     bool carryOutOfLastBit = result16Bit & 0x0100;
 
     bool overflow = carryOutOfLastBit ^ carryOutOfPenultimateBit;
@@ -53,7 +53,7 @@ void Cpu65816::execute16BitADC(OpCode &opCode) {
     // Is bit 8 set?
     bool carryOutOfPenultimateBit = partialResult & 0x8000;
 
-    // Is there a carry out of the last bit, check bit 16 for that?
+    // Is there a carry out of the last bit, check bit 16 for that
     bool carryOutOfLastBit = result32Bit & 0x010000;
 
     bool overflow = carryOutOfLastBit ^ carryOutOfPenultimateBit;
@@ -99,291 +99,154 @@ void Cpu65816::execute16BitBCDADC(OpCode &opCode) {
 }
 
 void Cpu65816::executeADC(OpCode &opCode) {
-    // All OpCodes take one more cycle on 65C02 in decimal mode
+    if (accumulatorIs8BitWide()) {
+        if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
+        else execute8BitADC(opCode);
+    } else {
+        if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
+        else execute16BitADC(opCode);
+        addToCycles(1);
+    }
+
+// All OpCodes take one more cycle on 65C02 in decimal mode
 #ifdef EMU_65C02
     if (mCpuStatus.decimalFlag()) {
         addToCycles(1);
     }
 #endif
+
     switch (opCode.getCode()) {
-        case(0x69):                 // ADC #const
-        {
-            if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToProgramAddress(1);
-                addToCycles(1);
+        switch (opCode.getCode()) {
+            case (0x69):                 // ADC Immediate
+            {
+                if (accumulatorIs16BitWide()) {
+                    addToProgramAddress(1);
+                }
+                addToProgramAddress(2);
+                addToCycles(2);
+                break;
             }
-            addToProgramAddress(2);
-            addToCycles(2);
-            break;
-        }
-        case(0x6D):                 // ADC absolute
-        {
-            if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToCycles(1);
+            case (0x6D):                 // ADC Absolute
+            {
+                addToProgramAddress(3);
+                addToCycles(4);
+                break;
             }
-            addToProgramAddress(3);
-            addToCycles(4);
-            break;
-        }
-        case(0x6F):                 // ADC absolute long
-        {
-            if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToCycles(1);
+            case (0x6F):                 // ADC Absolute Long
+            {
+                addToProgramAddress(4);
+                addToCycles(5);
+                break;
             }
+            case (0x65):                 // ADC Direct Page
+            {
+                if (Binary::lower8BitsOf(mD) != 0) {
+                    addToCycles(1);
+                }
 
-            if (Binary::lower8BitsOf(mD) != 0) {
-                addToCycles(1);
+                addToProgramAddress(2);
+                addToCycles(3);
+                break;
             }
+            case (0x72):                 // ADC Direct Page Indirect
+            {
+                if (Binary::lower8BitsOf(mD) != 0) {
+                    addToCycles(1);
+                }
 
-            addToProgramAddress(2);
-            addToCycles(5);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToCycles(1);
+                addToProgramAddress(2);
+                addToCycles(5);
+                break;
             }
-            addToProgramAddress(4);
-            addToCycles(5);
-            break;
-        }
-        case(0x65):                 // ADC Direct Page
-        {
-            if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToCycles(1);
-            }
+            case (0x67):                 // ADC Direct Page Indirect Long
+            {
+                if (Binary::lower8BitsOf(mD) != 0) {
+                    addToCycles(1);
+                }
 
-            if (Binary::lower8BitsOf(mD) != 0) {
-                addToCycles(1);
+                addToProgramAddress(2);
+                addToCycles(6);
+                break;
             }
+            case (0x7D):                 // ADC Absolute Indexed, X
+            {
+                if (opCodeAddressingCrossesPageBoundary(opCode)) {
+                    addToCycles(1);
+                }
 
-            addToProgramAddress(2);
-            addToCycles(3);
-            break;
-        }
-        case(0x72):                 // ADC Direct Page Indirect
-        {
-            if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToCycles(1);
+                addToProgramAddress(3);
+                addToCycles(4);
+                break;
             }
-
-            if (Binary::lower8BitsOf(mD) != 0) {
-                addToCycles(1);
+            case (0x7F):                 // ADC Absolute Long Indexed, X
+            {
+                addToProgramAddress(4);
+                addToCycles(5);
+                break;
             }
-
-            addToProgramAddress(2);
-            addToCycles(5);
-            break;
-        }
-        case(0x67):                 // ADC Direct Page Indirect Long
-        {
-            if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToCycles(1);
+            case (0x79):                 // ADC Absolute Indexed Y
+            {
+                if (opCodeAddressingCrossesPageBoundary(opCode)) {
+                    addToCycles(1);
+                }
+                addToProgramAddress(3);
+                addToCycles(4);
+                break;
             }
-
-            if (Binary::lower8BitsOf(mD) != 0) {
-                addToCycles(1);
+            case (0x75):                 // ADC Direct Page Indexed, X
+            {
+                if (Binary::lower8BitsOf(mD) != 0) {
+                    addToCycles(1);
+                }
+                addToProgramAddress(2);
+                addToCycles(4);
+                break;
             }
-
-            addToProgramAddress(2);
-            addToCycles(6);
-            break;
-        }
-        case(0x7D):                 // ADC Absolute Indexed, X
-        {
-            if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToCycles(1);
+            case (0x61):                 // ADC Direct Page Indexed Indirect, X
+            {
+                if (Binary::lower8BitsOf(mD) != 0) {
+                    addToCycles(1);
+                }
+                addToProgramAddress(2);
+                addToCycles(6);
+                break;
             }
-
-            if (opCodeAddressingCrossesPageBoundary(opCode)) {
-                addToCycles(1);
+            case (0x71):                 // ADC Direct Page Indirect Indexed, Y
+            {
+                if (Binary::lower8BitsOf(mD) != 0) {
+                    addToCycles(1);
+                }
+                if (opCodeAddressingCrossesPageBoundary(opCode)) {
+                    addToCycles(1);
+                }
+                addToProgramAddress(2);
+                addToCycles(5);
+                break;
             }
-
-            addToProgramAddress(3);
-            addToCycles(4);
-            break;
-        }
-        case(0x7F):                 // ADC Absolute Long Indexed, X
-        {
-            if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToCycles(1);
+            case (0x77):                 // ADC Direct Page Indirect Long Indexed, Y
+            {
+                if (Binary::lower8BitsOf(mD) != 0) {
+                    addToCycles(1);
+                }
+                addToProgramAddress(2);
+                addToCycles(6);
+                break;
             }
-
-            addToProgramAddress(4);
-            addToCycles(5);
-            break;
-        }
-        case(0x79):                 // ADC Absolute Indexed Y
-        {
-            if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToCycles(1);
+            case (0x63):                 // ADC Stack Relative
+            {
+                addToProgramAddress(2);
+                addToCycles(4);
+                break;
             }
-
-            if (opCodeAddressingCrossesPageBoundary(opCode)) {
-                addToCycles(1);
+            case (0x73):                 // ADC Stack Relative Indirect Indexed, Y
+            {
+                addToProgramAddress(2);
+                addToCycles(7);
+                break;
             }
-
-            addToProgramAddress(3);
-            addToCycles(4);
-            break;
-        }
-        case(0x75):                 // ADC Direct Page Indexed, X
-        {
-            if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToCycles(1);
+            default: {
+                LOG_UNEXPECTED_OPCODE(opCode);
             }
-
-            if (Binary::lower8BitsOf(mD) != 0) {
-                addToCycles(1);
-            }
-
-            addToProgramAddress(2);
-            addToCycles(4);
-            break;
-        }
-        case(0x61):                 // ADC Direct Page Indexed Indirect, X
-        {
-            if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToCycles(1);
-            }
-
-            if (Binary::lower8BitsOf(mD) != 0) {
-                addToCycles(1);
-            }
-
-            addToProgramAddress(2);
-            addToCycles(6);
-            break;
-        }
-        case(0x71):                 // ADC Direct Page Indirect Indexed, Y
-        {
-            if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToCycles(1);
-            }
-
-            if (Binary::lower8BitsOf(mD) != 0) {
-                addToCycles(1);
-            }
-            if (opCodeAddressingCrossesPageBoundary(opCode)) {
-                addToCycles(1);
-            }
-
-            addToProgramAddress(2);
-            addToCycles(5);
-            break;
-        }
-        case(0x77):                 // ADC Direct Page Indirect Long Indexed, Y
-        {
-            if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToCycles(1);
-            }
-
-            if (Binary::lower8BitsOf(mD) != 0) {
-                addToCycles(1);
-            }
-
-            addToProgramAddress(2);
-            addToCycles(6);
-            break;
-        }
-        case(0x63):                 // ADC Stack Relative
-        {
-            if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToCycles(1);
-            }
-
-            addToProgramAddress(2);
-            addToCycles(4);
-            break;
-        }
-        case(0x73):                 // ADC Stack Relative Indirect Indexed, Y
-        {
-            if (accumulatorIs8BitWide()) {
-                if (mCpuStatus.decimalFlag()) execute8BitBCDADC(opCode);
-                else execute8BitADC(opCode);
-            } else {
-                if (mCpuStatus.decimalFlag()) execute16BitBCDADC(opCode);
-                else execute16BitADC(opCode);
-                addToCycles(1);
-            }
-
-            addToProgramAddress(2);
-            addToCycles(7);
-            break;
-        }
-        default: {
-            LOG_UNEXPECTED_OPCODE(opCode);
         }
     }
 }
