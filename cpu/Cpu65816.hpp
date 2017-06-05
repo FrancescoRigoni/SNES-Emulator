@@ -154,6 +154,9 @@ class Cpu65816 {
         void execute8BitTRB(OpCode &);
         void execute16BitTRB(OpCode &);
         void executeTSBTRB(OpCode &);
+        void execute8BitBIT(OpCode &);
+        void execute16BitBIT(OpCode &);
+        void executeBIT(OpCode &);
         void executeMisc(OpCode &);
 };
 

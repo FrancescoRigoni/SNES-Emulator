@@ -5,7 +5,7 @@
 
 bool Cpu65816::opCodeAddressingCrossesPageBoundary(OpCode &opCode) {
     switch(opCode.getAddressingMode()) {
-        case AbsoluteIndexedWithX:
+        case AddressingMode::AbsoluteIndexedWithX:
         {
             Address initialAddress(mDB, mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1)));
             // TODO: figure out when to wrap around and when not to, it should not matter in this case
@@ -13,7 +13,7 @@ bool Cpu65816::opCodeAddressingCrossesPageBoundary(OpCode &opCode) {
             Address finalAddress = Address::sumOffsetToAddress(initialAddress, indexWithXRegister());
             return Address::offsetsAreOnDifferentPages(initialAddress.getOffset(), finalAddress.getOffset());
         }
-        case AbsoluteIndexedWithY:
+        case AddressingMode::AbsoluteIndexedWithY:
         {
             Address initialAddress(mDB, mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1)));
             // TODO: figure out when to wrap around and when not to, it should not matter in this case
@@ -21,7 +21,7 @@ bool Cpu65816::opCodeAddressingCrossesPageBoundary(OpCode &opCode) {
             Address finalAddress = Address::sumOffsetToAddress(initialAddress, indexWithYRegister());
             return Address::offsetsAreOnDifferentPages(initialAddress.getOffset(), finalAddress.getOffset());
         }
-        case DirectPageIndirectIndexedWithY:
+        case AddressingMode::DirectPageIndirectIndexedWithY:
         {
             uint16_t firstStageOffset = mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1));
             Address firstStageAddress(0x00, firstStageOffset);
@@ -47,46 +47,46 @@ Address Cpu65816::getAddressOfOpCodeData(OpCode &opCode) {
     uint16_t dataAddressOffset;
 
     switch(opCode.getAddressingMode()) {
-        case Interrupt:
-        case Accumulator:
-        case Implied:
-        case StackImplied:
+        case AddressingMode::Interrupt:
+        case AddressingMode::Accumulator:
+        case AddressingMode::Implied:
+        case AddressingMode::StackImplied:
             // Not really used, doesn't make any sense since these opcodes do not have operands
             return mProgramAddress;
-        case Immediate:
-        case BlockMove:
+        case AddressingMode::Immediate:
+        case AddressingMode::BlockMove:
             // Blockmove OpCodes have two bytes following them directly
-        case StackAbsolute:
+        case AddressingMode::StackAbsolute:
             // Stack absolute is used to push values following the op code onto the stack
-        case ProgramCounterRelative:
+        case AddressingMode::ProgramCounterRelative:
             // Program counter relative OpCodes such as all branch instructions have an 8 bit operand
             // following the op code
-        case ProgramCounterRelativeLong:
+        case AddressingMode::ProgramCounterRelativeLong:
             // StackProgramCounterRelativeLong is only used by the PER OpCode, it has 16 bit operand
-        case StackProgramCounterRelativeLong:
+        case AddressingMode::StackProgramCounterRelativeLong:
             mProgramAddress.newWithOffset(1).getBankAndOffset(&dataAddressBank, &dataAddressOffset);
             break;
-        case Absolute:
+        case AddressingMode::Absolute:
             dataAddressBank = mDB;
             dataAddressOffset = mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1));
             break;
-        case AbsoluteLong:
+        case AddressingMode::AbsoluteLong:
             mMemoryMapper.readAddressAt(mProgramAddress.newWithOffset(1)).getBankAndOffset(&dataAddressBank, &dataAddressOffset);
             break;
-        case AbsoluteIndirect:
+        case AddressingMode::AbsoluteIndirect:
         {
             dataAddressBank = mProgramAddress.getBank();
             Address addressOfOffset(0x00, mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1)));
             dataAddressOffset = mMemoryMapper.readTwoBytes(addressOfOffset);
         }
             break;
-        case AbsoluteIndirectLong:
+        case AddressingMode::AbsoluteIndirectLong:
         {
             Address addressOfEffectiveAddress(0x00, mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1)));
             mMemoryMapper.readAddressAt(addressOfEffectiveAddress).getBankAndOffset(&dataAddressBank, &dataAddressOffset);
         }
             break;
-        case AbsoluteIndexedIndirectWithX:
+        case AddressingMode::AbsoluteIndexedIndirectWithX:
         {
             Address firstStageAddress(mProgramAddress.getBank(), mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1)));
             Address secondStageAddress = firstStageAddress.newWithOffsetNoWrapAround(indexWithXRegister());
@@ -94,28 +94,28 @@ Address Cpu65816::getAddressOfOpCodeData(OpCode &opCode) {
             dataAddressOffset = mMemoryMapper.readTwoBytes(secondStageAddress);
         }
             break;
-        case AbsoluteIndexedWithX:
+        case AddressingMode::AbsoluteIndexedWithX:
         {
             Address firstStageAddress(mDB, mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1)));
             Address::sumOffsetToAddressNoWrapAround(firstStageAddress, indexWithXRegister())
                 .getBankAndOffset(&dataAddressBank, &dataAddressOffset);;
         }
             break;
-        case AbsoluteLongIndexedWithX:
+        case AddressingMode::AbsoluteLongIndexedWithX:
         {
             Address firstStageAddress = mMemoryMapper.readAddressAt(mProgramAddress.newWithOffset(1));
             Address::sumOffsetToAddressNoWrapAround(firstStageAddress, indexWithXRegister())
                 .getBankAndOffset(&dataAddressBank, &dataAddressOffset);;
         }
             break;
-        case AbsoluteIndexedWithY:
+        case AddressingMode::AbsoluteIndexedWithY:
         {
             Address firstStageAddress(mDB, mMemoryMapper.readTwoBytes(mProgramAddress.newWithOffset(1)));
             Address::sumOffsetToAddressNoWrapAround(firstStageAddress, indexWithYRegister())
                 .getBankAndOffset(&dataAddressBank, &dataAddressOffset);;
         }
             break;
-        case DirectPage:
+        case AddressingMode::DirectPage:
         {
             // Direct page/Zero page always refers to bank zero
             dataAddressBank = 0x00;
@@ -128,40 +128,40 @@ Address Cpu65816::getAddressOfOpCodeData(OpCode &opCode) {
             }
         }
             break;
-        case DirectPageIndexedWithX:
+        case AddressingMode::DirectPageIndexedWithX:
         {
             dataAddressBank = 0x00;
             dataAddressOffset = mD + indexWithXRegister() + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1));
         }
             break;
-        case DirectPageIndexedWithY:
+        case AddressingMode::DirectPageIndexedWithY:
         {
             dataAddressBank = 0x00;
             dataAddressOffset = mD + indexWithYRegister() + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1));
         }
             break;
-        case DirectPageIndirect:
+        case AddressingMode::DirectPageIndirect:
         {
             Address firstStageAddress(0x00, mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1)));
             dataAddressBank = mDB;
             dataAddressOffset = mMemoryMapper.readTwoBytes(firstStageAddress);
         }
             break;
-        case DirectPageIndirectLong:
+        case AddressingMode::DirectPageIndirectLong:
         {
             Address firstStageAddress(0x00, mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1)));
             mMemoryMapper.readAddressAt(firstStageAddress)
                 .getBankAndOffset(&dataAddressBank, &dataAddressOffset);;
         }
             break;
-        case DirectPageIndexedIndirectWithX:
+        case AddressingMode::DirectPageIndexedIndirectWithX:
         {
             Address firstStageAddress(0x00, mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1)) + indexWithXRegister());
             dataAddressBank = mDB;
             dataAddressOffset = mMemoryMapper.readTwoBytes(firstStageAddress);
         }
             break;
-        case DirectPageIndirectIndexedWithY:
+        case AddressingMode::DirectPageIndirectIndexedWithY:
         {
             Address firstStageAddress(0x00, mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1)));
             uint16_t secondStageOffset = mMemoryMapper.readTwoBytes(firstStageAddress);
@@ -170,7 +170,7 @@ Address Cpu65816::getAddressOfOpCodeData(OpCode &opCode) {
                 .getBankAndOffset(&dataAddressBank, &dataAddressOffset);
         }
             break;
-        case DirectPageIndirectLongIndexedWithY:
+        case AddressingMode::DirectPageIndirectLongIndexedWithY:
         {
             Address firstStageAddress(0x00, mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1)));
             Address secondStageAddress = mMemoryMapper.readAddressAt(firstStageAddress);
@@ -178,19 +178,19 @@ Address Cpu65816::getAddressOfOpCodeData(OpCode &opCode) {
                 .getBankAndOffset(&dataAddressBank, &dataAddressOffset);
         }
             break;
-        case StackRelative:
+        case AddressingMode::StackRelative:
         {
             dataAddressBank = 0x00;
             dataAddressOffset = mStack.getStackPointer() + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1));
         }
             break;
-        case StackDirectPageIndirect:
+        case AddressingMode::StackDirectPageIndirect:
         {
             dataAddressBank = 0x00;
             dataAddressOffset = mD + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1));
         }
             break;
-        case StackRelativeIndirectIndexedWithY:
+        case AddressingMode::StackRelativeIndirectIndexedWithY:
         {
             Address firstStageAddress(0x00, mStack.getStackPointer() + mMemoryMapper.readByte(mProgramAddress.newWithOffset(1)));
             uint16_t secondStageOffset = mMemoryMapper.readTwoBytes(firstStageAddress);

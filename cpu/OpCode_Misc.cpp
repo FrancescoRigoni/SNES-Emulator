@@ -8,13 +8,20 @@
 
 void Cpu65816::executeMisc(OpCode &opCode) {
     switch (opCode.getCode()) {
-        case(0xEB):  // XBA
+        case(0xEB):     // XBA
         {
             uint8_t lowerA = Binary::lower8BitsOf(mA);
             uint8_t higherA = Binary::higher8BitsOf(mA);
             mA = higherA | (((uint16_t)(lowerA)) << 8);
             mCpuStatus.updateSignAndZeroFlagFrom8BitValue(higherA);
             addToProgramAddressAndCycles(1, 3);
+            break;
+        }
+        case(0x42):     // WDM
+        {
+            addToProgramAddress(2);
+            addToCycles(2);
+            // Check cycles should be equal to executing two NOPs
             break;
         }
         default:

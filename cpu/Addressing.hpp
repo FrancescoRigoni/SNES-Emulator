@@ -1,7 +1,7 @@
 #ifndef ADDRESSING_HPP
 #define ADDRESSING_HPP
 
-enum AddressingMode {
+enum class AddressingMode {
     Interrupt,
     Accumulator,
     BlockMove,

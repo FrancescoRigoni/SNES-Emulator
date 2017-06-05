@@ -11,11 +11,11 @@ void Cpu65816::trace(OpCode &opCode) {
     log.str(" | ").hex(opCode.getCode(), 2).sp().str(opCode.getName()).sp();
 
     switch(opCode.getAddressingMode()) {
-        case Interrupt:
-        case Accumulator:
-        case Implied:
+        case AddressingMode::Interrupt:
+        case AddressingMode::Accumulator:
+        case AddressingMode::Implied:
             break;
-        case Immediate:
+        case AddressingMode::Immediate:
             // This refers to accumulator size to estimate the kind of value to print.
             // Instructions using index registers might print the wrong value.
             if (accumulatorIs8BitWide()) {
@@ -24,28 +24,28 @@ void Cpu65816::trace(OpCode &opCode) {
                 log.str("#").hex(mMemoryMapper.readTwoBytes(getAddressOfOpCodeData(opCode)), 4);
             }
             break;
-        case Absolute:
+        case AddressingMode::Absolute:
             log.hex(getAddressOfOpCodeData(opCode).getOffset(), 4).sp();
             log.str("                    [Absolute]");
             break;
-        case AbsoluteLong:
+        case AddressingMode::AbsoluteLong:
         {
             Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
             log.hex(opCodeDataAddress.getBank(), 2).str(":").hex(opCodeDataAddress.getOffset(), 4).sp();
             log.str("                [Absolute Long]");
         }
             break;
-        case AbsoluteIndirect:
+        case AddressingMode::AbsoluteIndirect:
             break;
-        case AbsoluteIndirectLong:
+        case AddressingMode::AbsoluteIndirectLong:
             break;
-        case AbsoluteIndexedIndirectWithX:
+        case AddressingMode::AbsoluteIndexedIndirectWithX:
             break;
-        case AbsoluteIndexedWithX:
+        case AddressingMode::AbsoluteIndexedWithX:
             log.hex(mMemoryMapper.readTwoBytes(onePlusOpCodeAddress), 4).str(", X").sp();
             log.str("                 [Absolute Indexed, X]");
             break;
-        case AbsoluteLongIndexedWithX:
+        case AddressingMode::AbsoluteLongIndexedWithX:
         {
             Address opCodeDataAddress = getAddressOfOpCodeData(opCode);
             Address effectiveAddress = mMemoryMapper.readAddressAt(opCodeDataAddress);
@@ -53,67 +53,67 @@ void Cpu65816::trace(OpCode &opCode) {
             log.str("                    [Absolute Long Indexed, X]");
         }
             break;
-        case AbsoluteIndexedWithY:
+        case AddressingMode::AbsoluteIndexedWithY:
             log.hex(mMemoryMapper.readTwoBytes(getAddressOfOpCodeData(opCode)), 4).str(", Y").sp();
             log.str("                    [Absolute Indexed, Y]");
             break;
-        case DirectPage:
+        case AddressingMode::DirectPage:
             log.hex(mMemoryMapper.readByte(onePlusOpCodeAddress), 2).sp();
             log.str("                      [Direct Page]");
             break;
-        case DirectPageIndexedWithX:
+        case AddressingMode::DirectPageIndexedWithX:
             log.hex(mMemoryMapper.readByte(onePlusOpCodeAddress), 2).str(", X").sp();
             log.str("                    [Direct Page Indexed, X]");
             break;
-        case DirectPageIndexedWithY:
+        case AddressingMode::DirectPageIndexedWithY:
             log.hex(mMemoryMapper.readByte(onePlusOpCodeAddress), 2).str(", Y").sp();
             log.str("                    [Direct Page Indexed, Y]");
             break;
-        case DirectPageIndirect:
+        case AddressingMode::DirectPageIndirect:
             log.str("(").hex(mMemoryMapper.readByte(onePlusOpCodeAddress), 2).str(")").sp();
             log.str("                    [Direct Page Indirect]");
             break;
-        case DirectPageIndirectLong:
+        case AddressingMode::DirectPageIndirectLong:
             log.str("[").hex(mMemoryMapper.readByte(getAddressOfOpCodeData(opCode)), 2).str("]").sp();
             log.str("                    [Direct Page Indirect Long]");
             break;
-        case DirectPageIndexedIndirectWithX:
+        case AddressingMode::DirectPageIndexedIndirectWithX:
             log.str("(").hex(mMemoryMapper.readByte(getAddressOfOpCodeData(opCode)), 2).str(", X)").sp();
             log.str("                    [Direct Page Indexed Indirect, X]");
             break;
-        case DirectPageIndirectIndexedWithY:
+        case AddressingMode::DirectPageIndirectIndexedWithY:
             log.str("(").hex(mMemoryMapper.readByte(getAddressOfOpCodeData(opCode)), 2).str("), Y").sp();
             log.str("                    [Direct Page Indirect Indexed, Y]");
             break;
-        case DirectPageIndirectLongIndexedWithY:
+        case AddressingMode::DirectPageIndirectLongIndexedWithY:
             log.str("[").hex(mMemoryMapper.readByte(getAddressOfOpCodeData(opCode)), 2).str("], Y").sp();
             log.str("                    [Direct Page Indirect Indexed, Y]");
             break;
-        case StackImplied:
+        case AddressingMode::StackImplied:
             log.str("                          [Stack Implied]");
             break;
-        case StackRelative:
+        case AddressingMode::StackRelative:
             log.hex(mMemoryMapper.readByte(getAddressOfOpCodeData(opCode)), 2).str(", S").sp();
             log.str("                    [Stack Relative]");
             break;
-        case StackAbsolute:
+        case AddressingMode::StackAbsolute:
             break;
-        case StackDirectPageIndirect:
+        case AddressingMode::StackDirectPageIndirect:
             break;
-        case StackProgramCounterRelativeLong:
+        case AddressingMode::StackProgramCounterRelativeLong:
             break;
-        case StackRelativeIndirectIndexedWithY:
+        case AddressingMode::StackRelativeIndirectIndexedWithY:
             log.str("(").hex(mMemoryMapper.readByte(Address::sumOffsetToAddressWrapAround(mProgramAddress, 1)), 2);
             log.str(", S), Y").sp();
             log.str("                    [Absolute Indexed, X]");
             break;
-        case ProgramCounterRelative:
+        case AddressingMode::ProgramCounterRelative:
             log.hex(mMemoryMapper.readByte(getAddressOfOpCodeData(opCode)), 2).sp();
             log.str("                      [Program Counter Relative]");
             break;
-        case ProgramCounterRelativeLong:
+        case AddressingMode::ProgramCounterRelativeLong:
             break;
-        case BlockMove:
+        case AddressingMode::BlockMove:
             break;
     }
 
