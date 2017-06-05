@@ -1,3 +1,4 @@
+#include <Interrupt.hpp>
 #include "Cpu65816.hpp"
 
 #define LOG_TAG "Cpu::executeInterrupt"
@@ -31,6 +32,25 @@ void Cpu65816::executeInterrupt(OpCode &opCode) {
                 setProgramAddress(newAddress);
                 addToCycles(8);
             }
+            break;
+        }
+        case(0x02):                 // COP
+        {
+            if (mCpuStatus.emulationFlag()) {
+                mStack.push16Bit(mProgramAddress.getOffset()+2);
+                mStack.push8Bit(mCpuStatus.getRegisterValue());
+                mCpuStatus.setInterruptDisableFlag();
+                setProgramAddress(Address(0x00, mEmulationInterrupts->coProcessorEnable));
+                addToCycles(7);
+            } else {
+                mStack.push8Bit(mProgramAddress.getBank());
+                mStack.push16Bit(mProgramAddress.getOffset()+2);
+                mStack.push8Bit(mCpuStatus.getRegisterValue());
+                mCpuStatus.setInterruptDisableFlag();
+                setProgramAddress(Address(0x00, mNativeInterrupts->coProcessorEnable));
+                addToCycles(8);
+            }
+            mCpuStatus.clearDecimalFlag();
             break;
         }
         case(0x40):                 // RTI

@@ -62,6 +62,12 @@ void Cpu65816::executeStatusReg(OpCode &opCode) {
             addToProgramAddressAndCycles(1, 2);
             break;
         }
+        case(0xB8):  // CLV
+        {
+            mCpuStatus.clearOverflowFlag();
+            addToProgramAddressAndCycles(1, 2);
+            break;
+        }
         case(0xFB):  // XCE
         {
             bool oldCarry = mCpuStatus.carryFlag();

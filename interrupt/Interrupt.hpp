@@ -1,6 +1,8 @@
 #ifndef INTERRUPT_HPP
 #define INTERRUPT_HPP
 
+#include <stdint.h>
+
 // Interrupt table. Native mode.
 typedef struct {
     const uint16_t coProcessorEnable;

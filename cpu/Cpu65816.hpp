@@ -82,7 +82,11 @@ class Cpu65816 {
         void addToProgramAddress(int);
         void addToProgramAddressAndCycles(int, int);
 
-        // OpCodes implementations. See OpCode_XXX.
+        // OpCode Table.
+        static OpCode OP_CODE_TABLE[];
+
+        // OpCodes handling routines.
+        // Implementations for these methods can be found in the corresponding OpCode_XXX.cpp file.
         void executeORA(OpCode &);
         void executeORA8Bit(OpCode &);
         void executeORA16Bit(OpCode &);
@@ -145,9 +149,12 @@ class Cpu65816 {
         void execute8BitCPY(OpCode &);
         void execute16BitCPY(OpCode &);
         void executeCPXCPY(OpCode &);
+        void execute8BitTSB(OpCode &);
+        void execute16BitTSB(OpCode &);
+        void execute8BitTRB(OpCode &);
+        void execute16BitTRB(OpCode &);
+        void executeTSBTRB(OpCode &);
         void executeMisc(OpCode &);
-
-        static OpCode OP_CODE_TABLE[];
 };
 
 #endif
