@@ -157,6 +157,9 @@ class Cpu65816 {
         void execute8BitBIT(OpCode &);
         void execute16BitBIT(OpCode &);
         void executeBIT(OpCode &);
+        void executeMemoryLSR(OpCode &);
+        void executeAccumulatorLSR(OpCode &);
+        void executeLSR(OpCode &);
         void executeMisc(OpCode &);
 };
 

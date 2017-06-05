@@ -35,6 +35,12 @@ void Cpu65816::executeStatusReg(OpCode &opCode) {
             addToProgramAddressAndCycles(1, 2);
             break;
         }
+        case(0x58):  // CLI
+        {
+            mCpuStatus.clearInterruptDisableFlag();
+            addToProgramAddressAndCycles(1, 2);
+            break;
+        }
         case(0xE2):  // SEP
         {
             uint8_t value = mMemoryMapper.readByte(getAddressOfOpCodeData(opCode));
